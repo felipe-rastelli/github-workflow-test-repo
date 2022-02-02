@@ -3,6 +3,12 @@ name: Test workflow 1
 on:
   workflow_dispatch:
 
+  push:
+    branches:
+      - develop
+    paths-ignore:
+      - ".github/**"
+
 jobs:
   # prod-check:
   #   if: ${{ github.ref != 'refs/heads/main' }}
