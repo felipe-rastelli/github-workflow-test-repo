@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Production branch ref
-        run:
+        run: |
           echo "Cannot deploy to production server from a branch different of 'main'"
           exit 1
         # run: echo "Deploying to production server on branch $GITHUB_REF"
@@ -27,7 +27,7 @@ jobs:
           EVENT_CONTEXT: ${{ toJson(github.event) }}
         run: echo $EVENT_CONTEXT
       - name: Print context ref
-        run: 
+        run: |
           echo 'branch ref is ${{ github.ref }}'
           echo 'branch ref_name is ${{ github.ref_name }}'
           echo 'branch sha is ${{ github.sha }}'
