@@ -5,7 +5,7 @@ on:
 
 jobs:
   test-workflow:
-    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/branch-test-workflow-2.yml@main
+    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/branch-test-workflow-2.yml@feature/feat1
   test-steps1:
     needs: [test-workflow]
     runs-on: ubuntu-latest
