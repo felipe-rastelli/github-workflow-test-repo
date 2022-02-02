@@ -15,7 +15,7 @@ jobs:
         # run: echo "Deploying to production server on branch $GITHUB_REF"
   test-workflow:
     needs: [prod-check]
-    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/branch-test-workflow-2.yml@develop
+    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/branch-test-workflow-2.yml@feature/feat1
   test-steps1:
     needs: [test-workflow]
     runs-on: ubuntu-latest
