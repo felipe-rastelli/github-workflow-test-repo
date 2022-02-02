@@ -11,5 +11,3 @@ jobs:
       # Checkout to repository
       - name: Checkout to repository
         uses: actions/checkout@v2
-      - name: Step test
-        run: echo "this is a workflow echo test"

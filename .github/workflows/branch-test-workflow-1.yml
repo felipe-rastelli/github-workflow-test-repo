@@ -20,7 +20,7 @@ jobs:
   #         exit 1
   test-workflow:
     # needs: [prod-check]
-    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/branch-test-workflow-2.yml@feature/feat1
+    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/branch-test-workflow-2.yml@develop
   test-steps1:
     needs: [test-workflow]
     runs-on: ubuntu-latest
