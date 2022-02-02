@@ -26,6 +26,11 @@ jobs:
         env:
           EVENT_CONTEXT: ${{ toJson(github.event) }}
         run: echo $EVENT_CONTEXT
+      - name: Print context ref
+        run: 
+          echo 'branch ref is ${{ github.ref }}'
+          echo 'branch ref_name is ${{ github.ref_name }}'
+          echo 'branch sha is ${{ github.sha }}'
   # post-prod-check:
   #   if: ${{ github.ref != 'refs/heads/main' }}
   #   runs-on: ubuntu-latest
