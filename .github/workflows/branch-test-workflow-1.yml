@@ -1,0 +1,25 @@
+name: Test workflow 1
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-workflow:
+    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/branch-test-workflow-2.yml@main
+  test-steps1:
+    needs: [test-workflow]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo after test
+        run: echo 'This is a test'
+      - name: Print event context
+        env:
+          EVENT_CONTEXT: ${{ toJson(github.event) }}
+        run: echo $EVENT_CONTEXT
+  test-steps2:
+    if: github.ref_name != 'develop'
+    needs: [test-steps1]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo after test-steps1
+        run: echo 'This should not run when develop is selected'
