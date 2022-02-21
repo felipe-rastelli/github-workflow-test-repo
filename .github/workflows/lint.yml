@@ -85,8 +85,8 @@ jobs:
           echo '${{ github.event }}'
 
           if [[ -n "$(git status --porcelain)" ]]; then
-            git config user.name $GIT_USER_NAME
-            git config user.email $GIT_USER_EMAIL
+            # git config user.name $GIT_USER_NAME
+            # git config user.email $GIT_USER_EMAIL
 
             git add .
             
