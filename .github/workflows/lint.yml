@@ -87,6 +87,8 @@ jobs:
           if [[ -n "$(git status --porcelain)" ]]; then
             # git config user.name $GIT_USER_NAME
             # git config user.email $GIT_USER_EMAIL
+            git config user.name felipe-rastelli
+            git config user.email felipe-rastelli@hotmail.com
 
             git add .
             
