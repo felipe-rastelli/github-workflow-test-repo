@@ -1,13 +1,13 @@
 name: Test workflow 1
 
-on:
-  workflow_dispatch:
+# on:
+#   workflow_dispatch:
 
-  push:
-    branches:
-      - develop
-    paths-ignore:
-      - ".github/**"
+#   push:
+#     branches:
+#       - develop
+#     paths-ignore:
+#       - ".github/**"
 
 jobs:
   # prod-check:
