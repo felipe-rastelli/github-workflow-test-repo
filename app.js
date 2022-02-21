@@ -1,5 +1,5 @@
-import express from 'express'
-import { test } from './test';
+const express = require('express');
+const { test } = require('./test');
 
 const app = express()
 const port = 3000

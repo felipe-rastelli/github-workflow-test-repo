@@ -5,7 +5,6 @@
   "repository": "git@github.com:felipe-rastelli/github-workflow-test-repo.git",
   "author": "Rastelli <felipe-rastelli@hotmail.com>",
   "license": "MIT",
-  "type": "module",
   "scripts": {
     "lint": "eslint . --ext .js"
   },
