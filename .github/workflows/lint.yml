@@ -79,7 +79,7 @@ jobs:
           eslint_flags: "--fix ${{ needs.check_files_diff.outputs.files_changed }}"
 
       - name: Commit & Push lint files changed
-        if: ${{ github.event.pull_request.merged == true }}
+        # if: ${{ github.event.pull_request.merged == true }}
         run: |
           echo "Pushing ESLint fixes to repo"
           echo '${{ github.event }}'
