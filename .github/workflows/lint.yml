@@ -32,17 +32,12 @@ jobs:
           targetBranchLatestCommitSha=${{ github.event.pull_request.base.sha }}
           headBranchLatestCommitSha=${{ github.sha }}
 
-          echo "TARGET: $targetBranchLatestCommitSha"
-          echo "HEAD: $headBranchLatestCommitSha"
+          diffFiles=$(git diff --no-commit-id --name-only --diff-filter=ACMRT $targetBranchLatestCommitSha $headBranchLatestCommitSha | grep -E '(.js$|.ts$)' | xargs)
 
-          allDiffFiles=$(git diff --no-commit-id --name-only --diff-filter=ACMRT $targetBranchLatestCommitSha $headBranchLatestCommitSha)
-          filteredDiffFiles=$("$allDiffFiles" | grep -E '(.js$|.ts$)' | xargs)
-
-          echo "ALL FILES: $allDiffFiles"
-          echo "FILTERED FILES: $filteredDiffFiles"
+          echo "ALL FILES: $diffFiles"
 
           echo "::echo::on"
-          echo "::set-output name=files_changed::$filteredDiffFiles"
+          echo "::set-output name=files_changed::$diffFiles"
 
       - name: Setup Node version and cache
         if: ${{ steps.get_pr_files_diff.outputs.files_changed }}
