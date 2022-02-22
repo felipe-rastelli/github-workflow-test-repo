@@ -1,6 +1,5 @@
-function test3() {
-  console.log('This is a test 3!')
-  
+export function test3() {
+  console.log('This is a test 3!') 
 }
 
 module.exports = {
