@@ -55,7 +55,7 @@ jobs:
         if: ${{ github.actor != env.GIT_DEFAULT_USER }}
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0
+          fetch-depth: 2
           ref: ${{ github.event.pull_request.head.ref }}
           token: ${{ secrets.REPO_PAT }}
 
@@ -63,8 +63,9 @@ jobs:
         if: ${{ github.actor != env.GIT_DEFAULT_USER }}
         id: get_pr_files_diff
         run: |
-          targetBranchLatestCommitSha="$(git log -n 1 --pretty=format:"%H" origin/${{ github.base_ref }})"
-          commitDiffFiles="$(git diff --no-commit-id --name-only --diff-filter=ACMRT ${targetBranchLatestCommitSha} ${{ github.sha }} | grep -E '(.js$|.ts$)' | xargs)"
+          # targetBranchLatestCommitSha="$(git log -n 1 --pretty=format:"%H" origin/${{ github.base_ref }})"
+          # commitDiffFiles="$(git diff --no-commit-id --name-only --diff-filter=ACMRT ${targetBranchLatestCommitSha} ${{ github.sha }} | grep -E '(.js$|.ts$)' | xargs)"
+          commitDiffFiles="$(git diff-tree --name-only --diff-filter=ACMRTUXB -r ${{ github.event.pull_request.head.sha }} | grep -E '(.js$|.ts$)' | xargs)"
 
           echo "::set-output name=files_changed::$(echo $commitDiffFiles)"
         env:
