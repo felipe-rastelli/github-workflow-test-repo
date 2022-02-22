@@ -26,10 +26,10 @@ jobs:
         if: ${{ github.event_name == 'pull_request' }}
         id: get-diff-files
         run: |
-          targetBranchLatestCommitSha=${{ github.event.pull_request.base.sha }}
-          headBranchLatestCommitSha=${{ github.sha }}
+          targetBranchLatestCommitSha="${{ github.event.pull_request.base.sha }}"
+          headBranchLatestCommitSha="${{ github.sha }}"
 
-          diffFiles=$(git diff --no-commit-id --name-only --diff-filter=ACMRT $targetBranchLatestCommitSha $headBranchLatestCommitSha | grep -E '(.js$|.ts$)' | xargs)
+          diffFiles="$(git diff --no-commit-id --name-only --diff-filter=ACMRT $targetBranchLatestCommitSha $headBranchLatestCommitSha | grep -E '(.js$|.ts$)' | xargs)"
 
           echo "::echo::on"
           echo "::set-output name=files-changed::$diffFiles"
