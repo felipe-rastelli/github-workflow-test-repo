@@ -4,24 +4,33 @@ on:
   pull_request:
     branches:
       - develop
-
-concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+    # paths-ignore:
+    #   - '.github/**'
 
 env:
   NODE_VERSION: '16.13'
   NODE_CACHE: 'yarn'
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   call-lint:
     uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/lint.yml@develop
-    secrets:
+    with:
       NODE_VERSION: ${{ env.NODE_VERSION }}
       NODE_CACHE: ${{ env.NODE_CACHE }}
   call-build:
     runs-on: ubuntu-latest
+    needs: call-lint
     steps:
-      - name: Test
-        run: echo "This is a test"
+      - name: Build application
+        run: echo "Building the application…"
+  call-test:
+    runs-on: ubuntu-latest
+    needs: call-build
+    steps:
+      - name: Test application
+        run: echo "Testing the application…"
 

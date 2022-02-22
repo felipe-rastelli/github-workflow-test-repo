@@ -1,22 +1,17 @@
 name: Lint Code
 
 on:
-  # pull_request:
-  #   branches:
-  #     - develop
-  #   types:
-  #     - opened
-  #     - synchronize
-    # paths-ignore:
-    #   - '.github/**'
   workflow_call:
-    secrets:
+    inputs:
       NODE_VERSION:
         description: "Node version to setup environment"
         required: true
+        type: string
       NODE_CACHE:
         description: "Package manager to cache dependencies"
         required: true
+        type: string
+    # secrets:
 
 # env:
 #   NODE_VERSION: '16.13'
@@ -55,8 +50,8 @@ jobs:
         if: ${{ steps.get_pr_files_diff.outputs.files_changed }}
         uses: actions/setup-node@v2
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: ${{ env.NODE_CACHE }}
+          node-version: ${{ inputs.NODE_VERSION }}
+          cache: ${{ inputs.NODE_CACHE }}
 
       - name: Install dependencies
         if: ${{ steps.get_pr_files_diff.outputs.files_changed }}
