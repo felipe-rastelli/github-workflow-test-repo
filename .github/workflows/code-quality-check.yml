@@ -15,7 +15,7 @@ env:
 
 jobs:
   call-lint:
-    uses: felipe-rastelli/github-workflow-test-repo/./github/workflows/lint.yml@develop
+    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/lint.yml@develop
     secrets:
       NODE_VERSION: ${{ env.NODE_VERSION }}
       NODE_CACHE: ${{ env.NODE_CACHE }}
