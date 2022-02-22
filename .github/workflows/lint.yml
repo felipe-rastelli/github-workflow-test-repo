@@ -35,8 +35,8 @@ jobs:
           echo "TARGET: $targetBranchLatestCommitSha"
           echo "HEAD: $headBranchLatestCommitSha"
 
-          allDiffFiles="$(git diff --no-commit-id --name-only --diff-filter=ACMRT $targetBranchLatestCommitSha $headBranchLatestCommitSha)"
-          filteredDiffFiles="$($allDiffFiles | grep -E '(.js$|.ts$)' | xargs)"
+          allDiffFiles=$(git diff --no-commit-id --name-only --diff-filter=ACMRT $targetBranchLatestCommitSha $headBranchLatestCommitSha)
+          filteredDiffFiles=$("$allDiffFiles" | grep -E '(.js$|.ts$)' | xargs)
 
           echo "ALL FILES: $allDiffFiles"
           echo "FILTERED FILES: $filteredDiffFiles"
