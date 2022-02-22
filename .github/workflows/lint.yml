@@ -60,16 +60,12 @@ jobs:
           token: ${{ secrets.REPO_PAT }}
 
       - name: Get PR files changed
-        if: ${{ github.actor != "github-actions[bot]" }}
+        if: ${{ github.actor != 'github-actions[bot]' }}
         id: get_pr_files_diff
         run: |
           commitDiffFiles="$(git diff-tree --no-commit-id --name-only --diff-filter=ACMRTUXB -r ${{ github.event.pull_request.head.sha }} | grep -E '(.js$|.ts$)' | xargs)"
+          echo "::echo::on"
           echo "::set-output name=files_changed::$commitDiffFiles"
-
-      - name: Echo step output
-        run: |
-          echo "${{ steps.get_pr_files_diff.outputs.files_changed }}"
-          echo ${{ env.GIT_DEFAULT_USER }}
 
       - name: Setup Node version and cache
         if: ${{ steps.get_pr_files_diff.outputs.files_changed }}
