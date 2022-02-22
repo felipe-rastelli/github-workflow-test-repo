@@ -63,8 +63,8 @@ jobs:
         if: ${{ github.actor != env.GIT_DEFAULT_USER }}
         id: get_pr_files_diff
         run: |
-          targetBranchLatestCommitSha="$(git log -n 1 --pretty=format:"%H" origin/${{ github.base_ref }})"
-          prDiffFiles="$(git diff --no-commit-id --name-only --diff-filter=ACMRT ${targetBranchLatestCommitSha} ${{ github.sha }} | grep -E '(.js$|.ts$)' | xargs)"
+          # targetBranchLatestCommitSha="$(git log -n 1 --pretty=format:"%H" origin/${{ github.base_ref }})"
+          # prDiffFiles="$(git diff --no-commit-id --name-only --diff-filter=ACMRT ${targetBranchLatestCommitSha} ${{ github.sha }} | grep -E '(.js$|.ts$)' | xargs)"
 
           commitDiffFiles="$(git diff-tree --no-commit-id --name-only --diff-filter=ACMRTUXB -r ${{ github.event.pull_request.head.sha }} | grep -E '(.js$|.ts$)' | xargs)"
 
