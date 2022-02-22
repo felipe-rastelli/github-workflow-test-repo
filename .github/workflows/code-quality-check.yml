@@ -19,8 +19,8 @@ jobs:
   call-lint:
     uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/lint.yml@test2
     with:
-      node_version: ${{ env.NODE_VERSION }}
-      node_cache: ${{ env.NODE_CACHE }}
+      node_version: $NODE_VERSION
+      node_cache: $NODE_CACHE
   call-build:
     runs-on: ubuntu-latest
     needs: call-lint
