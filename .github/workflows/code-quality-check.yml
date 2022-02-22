@@ -8,8 +8,8 @@ on:
     #   - '.github/**'
 
 env:
-  NODE_VERSION: '16.13'
-  NODE_CACHE: 'yarn'
+  NODE_VERSION: 16.13
+  NODE_CACHE: yarn
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -17,10 +17,10 @@ concurrency:
 
 jobs:
   call-lint:
-    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/lint.yml@develop
+    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/lint.yml@test2
     with:
-      NODE_VERSION: ${{ env.NODE_VERSION }}
-      NODE_CACHE: ${{ env.NODE_CACHE }}
+      node_version: ${{ env.NODE_VERSION }}
+      node_cache: ${{ env.NODE_CACHE }}
   call-build:
     runs-on: ubuntu-latest
     needs: call-lint
