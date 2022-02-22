@@ -60,23 +60,16 @@ jobs:
           token: ${{ secrets.REPO_PAT }}
 
       - name: Get PR files changed
-        if: ${{ github.actor != env.GIT_DEFAULT_USER }}
+        if: ${{ github.actor != "github-actions[bot]" }}
         id: get_pr_files_diff
         run: |
-          # targetBranchLatestCommitSha="$(git log -n 1 --pretty=format:"%H" origin/${{ github.base_ref }})"
-          # prDiffFiles="$(git diff --no-commit-id --name-only --diff-filter=ACMRT ${targetBranchLatestCommitSha} ${{ github.sha }} | grep -E '(.js$|.ts$)' | xargs)"
-
           commitDiffFiles="$(git diff-tree --no-commit-id --name-only --diff-filter=ACMRTUXB -r ${{ github.event.pull_request.head.sha }} | grep -E '(.js$|.ts$)' | xargs)"
-
           echo "::set-output name=files_changed::$commitDiffFiles"
 
-          echo "COMMIT DIFF"
-          echo "$commitDiffFiles"
-          echo "PR COMMIT DIFF"
-          echo "$prDiffFiles"
-
       - name: Echo step output
-        run: echo "${{ steps.get_pr_files_diff.outputs.files_changed }}"
+        run: |
+          echo "${{ steps.get_pr_files_diff.outputs.files_changed }}"
+          echo ${{ env.GIT_DEFAULT_USER }}
 
       - name: Setup Node version and cache
         if: ${{ steps.get_pr_files_diff.outputs.files_changed }}
@@ -99,7 +92,7 @@ jobs:
       - name: Commit & Push lint files changed
         run: |
           echo "DEBUG"
-          echo `${{ toJSON(github.actor) }}`
+          echo ${{ toJSON(github.actor) }}
           echo "$GIT_DEFAULT_USER"
           echo "DEBUG"
 
