@@ -63,13 +63,20 @@ jobs:
         if: ${{ github.actor != env.GIT_DEFAULT_USER }}
         id: get_pr_files_diff
         run: |
-          # targetBranchLatestCommitSha="$(git log -n 1 --pretty=format:"%H" origin/${{ github.base_ref }})"
-          # commitDiffFiles="$(git diff --no-commit-id --name-only --diff-filter=ACMRT ${targetBranchLatestCommitSha} ${{ github.sha }} | grep -E '(.js$|.ts$)' | xargs)"
-          commitDiffFiles="$(git diff-tree --name-only --diff-filter=ACMRTUXB -r ${{ github.event.pull_request.head.sha }} | grep -E '(.js$|.ts$)' | xargs)"
+          targetBranchLatestCommitSha="$(git log -n 1 --pretty=format:"%H" origin/${{ github.base_ref }})"
+          prDiffFiles="$(git diff --no-commit-id --name-only --diff-filter=ACMRT ${targetBranchLatestCommitSha} ${{ github.sha }} | grep -E '(.js$|.ts$)' | xargs)"
 
-          echo "::set-output name=files_changed::$(echo $commitDiffFiles)"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          commitDiffFiles="$(git diff-tree --no-commit-id --name-only --diff-filter=ACMRTUXB -r ${{ github.event.pull_request.head.sha }} | grep -E '(.js$|.ts$)' | xargs)"
+
+          echo "::set-output name=files_changed::$commitDiffFiles"
+
+          echo "COMMIT DIFF"
+          echo "$commitDiffFiles"
+          echo "PR COMMIT DIFF"
+          echo "$prDiffFiles"
+
+      - name: Echo step output
+        run: echo "${{ steps.get_pr_files_diff.outputs.files_changed }}"
 
       - name: Setup Node version and cache
         if: ${{ steps.get_pr_files_diff.outputs.files_changed }}
@@ -87,7 +94,7 @@ jobs:
         uses: reviewdog/action-eslint@v1
         with:
           github_token: ${{ github.token }}
-          eslint_flags: "--fix ${{ needs.check_files_diff.outputs.files_changed }}"
+          eslint_flags: "--fix ${{ steps.get_pr_files_diff.outputs.files_changed }}"
         
       - name: Commit & Push lint files changed
         run: |
@@ -106,5 +113,4 @@ jobs:
             echo "Nothing to commit, no files were modified."
           fi
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COMMIT_MESSAGE: "chore(lint): Fix code style issues with ESLint and Prettier"
