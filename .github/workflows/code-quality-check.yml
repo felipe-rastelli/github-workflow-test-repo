@@ -16,12 +16,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      node-version: ${{ steps.setup-config.node-version }}
+      node-cache: ${{ steps.setup-config.node-cache }}
+    steps:
+      - name: Setup config inputs
+        id: setup-config
+        run: |
+          echo "::echo::on"
+          echo "::set-output name=node-version::$NODE_VERSION"
+          echo "::set-output name=node-cache::$NODE_CACHE"
   call-lint:
     name: Lint
+    needs: setup
     uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/lint.yml@test2
     with:
-      node-version: ${{ env.NODE_VERSION }}
-      node-cache: ${{ env.NODE_CACHE }}
+      node-version: ${{ needs.setup.outputs.node-version }}
+      node-cache: ${{ needs.setup.outputs.node-cache }}
   call-build:
     runs-on: ubuntu-latest
     needs: call-lint

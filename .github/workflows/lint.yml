@@ -12,14 +12,14 @@ on:
         required: true
         type: string
 
-# env:
-  # GIT_DEFAULT_USER: "github-actions[bot]"
-  # GIT_DEFAULT_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
-
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
+      - name: Debug
+        run: |
+          echo '${{ toJSON(inputs) }}'
+          
       - name: Checkout to repository
         uses: actions/checkout@v2
         with:
@@ -27,7 +27,7 @@ jobs:
 
       - name: Get PR files changed
         if: ${{ github.event_name == 'pull_request' }}
-        id: get_pr_files_diff
+        id: get-diff-files
         run: |
           targetBranchLatestCommitSha=${{ github.event.pull_request.base.sha }}
           headBranchLatestCommitSha=${{ github.sha }}
@@ -37,25 +37,25 @@ jobs:
           echo "ALL FILES: $diffFiles"
 
           echo "::echo::on"
-          echo "::set-output name=files_changed::$diffFiles"
+          echo "::set-output name=files-changed::$diffFiles"
 
       - name: Setup Node version and cache
-        if: ${{ steps.get_pr_files_diff.outputs.files_changed }}
+        if: ${{ steps.get-diff-files.outputs.files-changed }}
         uses: actions/setup-node@v2
         with:
           node-version: ${{ inputs.node-version }}
           cache: ${{ inputs.node-cache }}
 
       - name: Install dependencies
-        if: ${{ steps.get_pr_files_diff.outputs.files_changed }}
+        if: ${{ steps.get-diff-files.outputs.files-changed }}
         run: yarn install --frozen-lockfile
 
       - name: Run lint and comment report to PR
-        if: ${{ steps.get_pr_files_diff.outputs.files_changed }}
+        if: ${{ steps.get-diff-files.outputs.files-changed }}
         uses: reviewdog/action-eslint@v1
         with:
           github_token: ${{ github.token }}
-          eslint_flags: "${{ steps.get_pr_files_diff.outputs.files_changed }}"
+          eslint_flags: "${{ steps.get-diff-files.outputs.files-changed }}"
         
       # - name: Commit & Push lint files changed
       #   run: |
