@@ -12,13 +12,8 @@ on:
 
 jobs:
   lint:
-    name: Lint
     runs-on: ubuntu-latest
     steps:
-      - name: Debug
-        run: |
-          echo '${{ toJSON(inputs) }}'
-
       - name: Checkout to repository
         uses: actions/checkout@v2
         with:

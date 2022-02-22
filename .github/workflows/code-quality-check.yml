@@ -1,5 +1,3 @@
-name: Code Quality Check
-
 on:
   pull_request:
     branches:
@@ -12,20 +10,27 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo '${{ toJSON(github) }}'
+
   call-lint:
+    name: Lint Code
     uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/lint.yml@test2
     with:
       node-version: 16.13
       node-cache: yarn
   call-build:
+    name: Build
     runs-on: ubuntu-latest
-    needs: call-lint
     steps:
       - name: Build application
         run: echo "Building the application…"
   call-test:
+    name: Test Code
     runs-on: ubuntu-latest
-    needs: call-build
     steps:
       - name: Test application
         run: echo "Testing the application…"
