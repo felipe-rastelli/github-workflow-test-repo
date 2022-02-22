@@ -20,17 +20,10 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - name: Debug
-        run: |
-          echo 'PR branch ref: ${{ github.event.pull_request.head.ref }}'
-          echo 'PR HEAD Sha: ${{ github.event.pull_request.head.sha }}'
-          echo 'TOKEN: ${{ github.token }}'
-
       - name: Checkout to repository
         uses: actions/checkout@v2
         with:
           fetch-depth: 2
-          # ref: ${{ github.event.pull_request.head.ref }}
 
       - name: Get PR files changed
         if: ${{ github.event_name == 'pull_request' }}
@@ -42,8 +35,8 @@ jobs:
           echo "TARGET: $targetBranchLatestCommitSha"
           echo "HEAD: $headBranchLatestCommitSha"
 
-          allDiffFiles=$(git diff --no-commit-id --name-only --diff-filter=ACMRT $targetBranchLatestCommitSha $headBranchLatestCommitSha)
-          filteredDiffFiles=$($allDiffFiles | grep -E '(.js$|.ts$)' | xargs)
+          allDiffFiles="$(git diff --no-commit-id --name-only --diff-filter=ACMRT $targetBranchLatestCommitSha $headBranchLatestCommitSha)"
+          filteredDiffFiles="$($allDiffFiles | grep -E '(.js$|.ts$)' | xargs)"
 
           echo "ALL FILES: $allDiffFiles"
           echo "FILTERED FILES: $filteredDiffFiles"
