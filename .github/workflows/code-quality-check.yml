@@ -1,3 +1,5 @@
+name: Code Quality Check
+
 on:
   pull_request:
     branches:
@@ -17,7 +19,7 @@ jobs:
           echo '${{ toJSON(github) }}'
 
   call-lint:
-    name: Lint Code
+    name: Lint
     uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/lint.yml@test2
     with:
       node-version: 16.13
@@ -29,7 +31,7 @@ jobs:
       - name: Build application
         run: echo "Building the application…"
   call-test:
-    name: Test Code
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - name: Test application
