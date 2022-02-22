@@ -98,9 +98,17 @@ jobs:
         
       - name: Commit & Push lint files changed
         run: |
+          echo "DEBUG"
+          echo `${{ toJSON(github.actor) }}`
+          echo "$GIT_DEFAULT_USER"
+          echo "DEBUG"
+
           if [[ -n "$(git status --porcelain)" ]]; then
             git config user.name $GIT_DEFAULT_USER
             git config user.email $GIT_DEFAULT_EMAIL
+
+            echo "GIT USER $(git config user.name)"
+            echo "GIT USER $(git config user.email)"
 
             git add .
             
