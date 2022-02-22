@@ -1,73 +1,62 @@
-name: Lint Code
+name: Lint
 
 on:
-  # pull_request:
-  #   branches:
-  #     - develop
-  #   types:
-  #     - opened
-  #     - synchronize
-    # paths-ignore:
-    #   - '.github/**'
   workflow_call:
-    secrets:
-      NODE_VERSION:
+    inputs:
+      node-version:
         description: "Node version to setup environment"
         required: true
-      NODE_CACHE:
+        type: string
+      node-cache:
         description: "Package manager to cache dependencies"
         required: true
-
-# env:
-#   NODE_VERSION: '16.13'
-#   NODE_CACHE: 'yarn'
-  # GIT_DEFAULT_USER: "github-actions[bot]"
-  # GIT_DEFAULT_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
-
-# concurrency:
-#   group: ci-${{ github.workflow }}-${{ github.ref }}
-  # cancel-in-progress: true
+        type: string
 
 jobs:
   lint:
+    name: Lint Code
     runs-on: ubuntu-latest
     steps:
-      - name: Debug
-        run: |
-          echo 'PR branch ref: ${{ github.event.pull_request.head.ref }}'
-          echo 'PR HEAD Sha: ${{ github.event.pull_request.head.sha }}'
-          echo 'TOKEN: ${{ github.token }}'
-
       - name: Checkout to repository
         uses: actions/checkout@v2
         with:
           fetch-depth: 2
-          ref: ${{ github.event.pull_request.head.ref }}
 
       - name: Get PR files changed
-        id: get_pr_files_diff
+        if: ${{ github.event_name == 'pull_request' }}
+        id: get-diff-files
         run: |
-          commitDiffFiles="$(git diff-tree --no-commit-id --name-only --diff-filter=ACMRTUXB -r ${{ github.event.pull_request.head.sha }} | grep -E '(.js$|.ts$)' | xargs)"
+          targetBranchLatestCommitSha="${{ github.event.pull_request.base.sha }}"
+          headBranchLatestCommitSha="${{ github.sha }}"
+
+          diffFiles="$(git diff --no-commit-id --name-only --diff-filter=ACMRT $targetBranchLatestCommitSha $headBranchLatestCommitSha | grep -E '(.js$|.ts$)' | xargs)"
+
           echo "::echo::on"
-          echo "::set-output name=files_changed::$commitDiffFiles"
+          echo "::set-output name=files-changed::$diffFiles"
 
       - name: Setup Node version and cache
-        if: ${{ steps.get_pr_files_diff.outputs.files_changed }}
+        if: ${{ steps.get-diff-files.outputs.files-changed }}
         uses: actions/setup-node@v2
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: ${{ env.NODE_CACHE }}
+          node-version: ${{ inputs.node-version }}
+          cache: ${{ inputs.node-cache }}
 
       - name: Install dependencies
-        if: ${{ steps.get_pr_files_diff.outputs.files_changed }}
+        if: ${{ steps.get-diff-files.outputs.files-changed }}
         run: yarn install --frozen-lockfile
 
       - name: Run lint and comment report to PR
-        if: ${{ steps.get_pr_files_diff.outputs.files_changed }}
+        if: ${{ steps.get-diff-files.outputs.files-changed }}
         uses: reviewdog/action-eslint@v1
         with:
           github_token: ${{ github.token }}
-          eslint_flags: "${{ steps.get_pr_files_diff.outputs.files_changed }}"
+          eslint_flags: "${{ env.ESLINT_FLAGS }} ${{ env.FILENAMES }}"
+          level: warning
+          filter_mode: file
+          fail_on_error: true
+        env:
+          FILENAMES: "${{ steps.get-diff-files.outputs.files-changed }}"
+          ESLINT_FLAGS: ""
         
       # - name: Commit & Push lint files changed
       #   run: |

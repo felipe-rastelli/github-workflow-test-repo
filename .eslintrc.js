@@ -5,6 +5,6 @@ module.exports = {
   },
   extends: ['eslint:recommended', 'plugin:import/recommended', 'plugin:prettier/recommended'],
   rules: {
-    'import/order': ['warn', { 'newlines-between': 'always' }]
+    'import/order': ['error', { 'newlines-between': 'always' }]
   }
 }
