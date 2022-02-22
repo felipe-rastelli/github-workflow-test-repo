@@ -1,0 +1,27 @@
+name: Code Quality Check
+
+on:
+  pull_request:
+    branches:
+      - develop
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '16.13'
+  NODE_CACHE: 'yarn'
+
+jobs:
+  call-lint:
+    uses: felipe-rastelli/github-workflow-test-repo/./github/workflows/lint.yml@develop
+    secrets:
+      NODE_VERSION: ${{ env.NODE_VERSION }}
+      NODE_CACHE: ${{ env.NODE_CACHE }}
+  call-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test
+        run: echo "This is a test"
+
