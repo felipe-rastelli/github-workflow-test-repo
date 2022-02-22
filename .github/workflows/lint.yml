@@ -31,8 +31,6 @@ jobs:
 
           diffFiles=$(git diff --no-commit-id --name-only --diff-filter=ACMRT $targetBranchLatestCommitSha $headBranchLatestCommitSha | grep -E '(.js$|.ts$)' | xargs)
 
-          echo "ALL FILES: $diffFiles"
-
           echo "::echo::on"
           echo "::set-output name=files-changed::$diffFiles"
 
@@ -52,7 +50,10 @@ jobs:
         uses: reviewdog/action-eslint@v1
         with:
           github_token: ${{ github.token }}
-          eslint_flags: "${{ steps.get-diff-files.outputs.files-changed }}"
+          eslint_flags: "$ESLINT_FLAGS $FILENAMES"
+        env:
+          FILENAMES: "${{ steps.get-diff-files.outputs.files-changed }}"
+          ESLINT_FLAGS: ""
         
       # - name: Commit & Push lint files changed
       #   run: |
