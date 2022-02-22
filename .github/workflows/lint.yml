@@ -3,11 +3,11 @@ name: Lint Code
 on:
   workflow_call:
     inputs:
-      node_version:
+      node-version:
         description: "Node version to setup environment"
         required: true
         type: string
-      node_cache:
+      node-cache:
         description: "Package manager to cache dependencies"
         required: true
         type: string
@@ -43,8 +43,8 @@ jobs:
         if: ${{ steps.get_pr_files_diff.outputs.files_changed }}
         uses: actions/setup-node@v2
         with:
-          node-version: ${{ inputs.node_version }}
-          cache: ${{ inputs.node_cache }}
+          node-version: ${{ inputs.node-version }}
+          cache: ${{ inputs.node-cache }}
 
       - name: Install dependencies
         if: ${{ steps.get_pr_files_diff.outputs.files_changed }}
