@@ -50,7 +50,7 @@ jobs:
         uses: reviewdog/action-eslint@v1
         with:
           github_token: ${{ github.token }}
-          eslint_flags: "$ESLINT_FLAGS $FILENAMES"
+          eslint_flags: "${{ env.ESLINT_FLAGS }} ${{ env.FILENAMES }}"
         env:
           FILENAMES: "${{ steps.get-diff-files.outputs.files-changed }}"
           ESLINT_FLAGS: ""
