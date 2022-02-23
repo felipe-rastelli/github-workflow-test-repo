@@ -52,7 +52,7 @@ jobs:
           github_token: ${{ github.token }}
           eslint_flags: "${{ env.ESLINT_FLAGS }} ${{ env.FILENAMES }}"
           level: warning
-          filter_mode: diff_context
+          filter_mode: file
           fail_on_error: true
         env:
           FILENAMES: "${{ steps.get-diff-files.outputs.files-changed }}"
