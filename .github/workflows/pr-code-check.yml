@@ -12,6 +12,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test
+        run: |
+          echo '${{ github.event.pull_request.draft }}'
   call-lint:
     name: Call Lint
     uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/lint.yml@develop
