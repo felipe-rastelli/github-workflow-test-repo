@@ -4,6 +4,12 @@ on:
   pull_request:
     branches:
       - develop
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - converted_to_draft
+      - ready_for_review
     # paths-ignore:
     #   - '.github/**'
 
