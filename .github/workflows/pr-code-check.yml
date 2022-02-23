@@ -12,16 +12,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  setup:
-    name: Setup
-    runs-on: ubuntu-latest
-    steps:
-      - name: Echo event
-        run: |
-          echo 'DRAFT: ${{ github.event.pull_request.draft }}'
-          echo 'ACTOR: ${{ github.actor }}'
-          echo 'DEPENDABOT: ${{ github.actor != 'dependabot[bot]' }}'
   call-lint:
+    if: ${{ github.event.pull_request.draft == false }}
     name: Lint
     uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/lint.yml@draft-test
     with:

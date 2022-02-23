@@ -40,6 +40,10 @@ jobs:
           echo "::echo::on"
           echo "::set-output name=files-changed::$diffFiles"
 
+          if [[ -z $diffFiles ]]; then
+            echo "No JS/TS files changed in this PR."
+          fi
+
       - name: Setup Node version and cache
         if: ${{ steps.get-diff-files.outputs.files-changed }}
         uses: actions/setup-node@v2
