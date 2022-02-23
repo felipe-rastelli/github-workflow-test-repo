@@ -13,21 +13,28 @@ concurrency:
 
 jobs:
   call-lint:
-    name: Lint
+    name: Call Lint
     uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/lint.yml@develop
     with:
       node-version: 16.13
       node-cache: yarn
   call-build:
-    name: Build
+    needs: call-lint
+    name: Call Build
     runs-on: ubuntu-latest
     steps:
-      - name: Build application
-        run: echo "Building the application…"
+      - run: 'echo "Building the application…"'
   call-test:
-    name: Test
+    needs: call-lint
+    name: Call Test
     runs-on: ubuntu-latest
     steps:
-      - name: Test application
-        run: echo "Testing the application…"
+      - run: 'echo "Testing the application…"'
+  call-deploy-preview:
+    name: Call Deploy
+    needs: [call-build, call-test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy (Preview)
+        run: echo "Deploying the application…"
 
