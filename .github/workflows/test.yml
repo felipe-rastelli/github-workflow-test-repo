@@ -5,16 +5,17 @@ on:
     inputs:
       node-version:
         description: "Node version to setup environment"
-        required: true
         type: string
+        required: true
       node-cache:
         description: "Package manager to cache dependencies"
-        required: true
         type: string
+        required: true
       coverage:
         description: "Set to run tests and send coverage"
-        required: false
         type: boolean
+        required: false
+        default: false
 jobs:
   test:
     name: Test and coverage
@@ -24,7 +25,7 @@ jobs:
         run: |
           echo "Running application tests."
           echo "coverage: ${{ inputs.coverage }}"
-      - name: Test
+      - name: Send coverage
         if: ${{ inputs.coverage }}
         run: |
           echo "Sending coverage report."

@@ -18,14 +18,16 @@ jobs:
     steps:
       - name: Echo event
         run: |
-          echo '${{ github.event.pull_request.draft }}'
+          echo 'DRAFT: ${{ github.event.pull_request.draft }}'
+          echo 'ACTOR: ${{ github.actor }}'
+          echo 'DEPENDABOT: ${{ github.actor != 'dependabot[bot]' }}'
   call-lint:
     name: Lint
     uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/lint.yml@draft-test
     with:
       node-version: 16.13
       node-cache: yarn
-      skip: ${{ github.actor != 'dependabot[bot]' }}
+      skip: ${{ github.actor == 'dependabot[bot]' }}
   call-build:
     needs: call-lint
     name: Build
