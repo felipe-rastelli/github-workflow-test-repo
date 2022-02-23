@@ -4,18 +4,16 @@ on:
   pull_request:
     branches:
       - develop
-    paths-ignore:
-      - 'ignored/**'
-  workflow_call:
-    inputs:
-      node-version:
-        description: "Node version to setup environment"
-        required: true
-        type: string
-      node-cache:
-        description: "Package manager to cache dependencies"
-        required: true
-        type: string
+  # workflow_call:
+  #   inputs:
+  #     node-version:
+  #       description: "Node version to setup environment"
+  #       required: true
+  #       type: string
+  #     node-cache:
+  #       description: "Package manager to cache dependencies"
+  #       required: true
+  #       type: string
 
 env:
   NODE_VERSION: 16.13
@@ -48,8 +46,8 @@ jobs:
         if: ${{ steps.get-diff-files.outputs.files-changed }}
         uses: actions/setup-node@v2
         with:
-          node-version: ${{ [[ github.event_name == 'workflow_call' ]] && echo inputs.node-version || echo env.NODE_VERSION }}
-          cache: ${{ [[ github.event_name == 'workflow_call' ]] && echo inputs.node-cache || echo env.NODE_CACHE }}
+          node-version: ${{ env.NODE_VERSION }}
+          cache: ${{ env.NODE_CACHE }}
           # node-version: ${{ inputs.node-version }}
           # cache: ${{ inputs.node-cache }}
 
