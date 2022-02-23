@@ -1,0 +1,31 @@
+name: Test
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: "Node version to setup environment"
+        type: string
+        required: true
+      node-cache:
+        description: "Package manager to cache dependencies"
+        type: string
+        required: true
+      coverage:
+        description: "Set to run tests and send coverage"
+        type: boolean
+        required: false
+        default: false
+jobs:
+  test:
+    name: Test and coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test
+        run: |
+          echo "Running application tests."
+          echo "coverage: ${{ inputs.coverage }}"
+      - name: Send coverage
+        if: ${{ inputs.coverage }}
+        run: |
+          echo "Sending coverage report."
