@@ -1,6 +1,11 @@
 name: Lint
 
 on:
+  pull_request:
+    branches:
+      - develop
+    paths-ignore:
+      - 'ignored/**'
   workflow_call:
     inputs:
       node-version:
@@ -12,12 +17,17 @@ on:
         required: true
         type: string
 
+env:
+  NODE_VERSION: 16.13
+  NODE_CACHE: yarn
+
 jobs:
   lint:
     name: Lint Code
     runs-on: ubuntu-latest
     steps:
       - name: Checkout to repository
+        if: ${{ github.event_name == 'pull_request' }}
         uses: actions/checkout@v2
         with:
           fetch-depth: 2
@@ -38,8 +48,10 @@ jobs:
         if: ${{ steps.get-diff-files.outputs.files-changed }}
         uses: actions/setup-node@v2
         with:
-          node-version: ${{ inputs.node-version }}
-          cache: ${{ inputs.node-cache }}
+          node-version: ${{ [[ github.event_name == 'workflow_call' ]] && echo inputs.node-version || echo env.NODE_VERSION }}
+          cache: ${{ [[ github.event_name == 'workflow_call' ]] && echo inputs.node-cache || echo env.NODE_CACHE }}
+          # node-version: ${{ inputs.node-version }}
+          # cache: ${{ inputs.node-cache }}
 
       - name: Install dependencies
         if: ${{ steps.get-diff-files.outputs.files-changed }}
@@ -52,7 +64,7 @@ jobs:
           github_token: ${{ github.token }}
           eslint_flags: "${{ env.ESLINT_FLAGS }} ${{ env.FILENAMES }}"
           level: warning
-          filter_mode: file
+          filter_mode: diff_context
           fail_on_error: true
         env:
           FILENAMES: "${{ steps.get-diff-files.outputs.files-changed }}"
