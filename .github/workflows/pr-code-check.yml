@@ -13,35 +13,38 @@ concurrency:
 
 jobs:
   setup:
+    name: Setup
     runs-on: ubuntu-latest
     steps:
-      - name: Test
+      - name: Echo event
         run: |
           echo '${{ github.event.pull_request.draft }}'
   call-lint:
-    name: Call Lint
-    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/lint.yml@develop
+    name: Lint
+    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/lint.yml@draft-test
     with:
       node-version: 16.13
       node-cache: yarn
+      skip: ${{ github.actor != 'dependabot[bot]' }}
   call-build:
     needs: call-lint
-    name: Call Build
-    runs-on: ubuntu-latest
-    steps:
-      - run: 'echo "Building the application…"'
-  call-test:
-    needs: call-lint
-    name: Call Test
+    name: Build
     uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/build.yml@draft-test
     with:
       node-version: 16.13
       node-cache: yarn
-  call-deploy-preview:
-    name: Call Deploy
-    needs: [call-build, call-test]
+  call-test:
+    needs: call-lint
+    name: Test
     uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/test.yml@draft-test
     with:
       node-version: 16.13
       node-cache: yarn
+      coverage: ${{ github.actor != 'dependabot[bot]' }}
+  call-deploy-preview:
+    name: Deploy
+    needs: [call-build, call-test]
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "Deploying the application…"'
 

@@ -5,26 +5,31 @@ on:
     inputs:
       node-version:
         description: "Node version to setup environment"
-        required: true
         type: string
+        required: true
       node-cache:
         description: "Package manager to cache dependencies"
-        required: true
         type: string
+        required: true
+      skip:
+        description: "Skip workflow steps without skipping the workflow itself"
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   lint:
-    name: Lint Code
+    name: Lint Code & Style
     runs-on: ubuntu-latest
     steps:
       - name: Checkout to repository
-        if: ${{ github.actor != 'dependabot[bot]' }}
+        if: ${{ inputs.skip == false }}
         uses: actions/checkout@v2
         with:
           fetch-depth: 2
 
       - name: Get PR files changed
-        if: ${{ github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' }}
+        if: ${{ github.event_name == 'pull_request' && inputs.skip == false }}
         id: get-diff-files
         run: |
           targetBranchLatestCommitSha="${{ github.event.pull_request.base.sha }}"

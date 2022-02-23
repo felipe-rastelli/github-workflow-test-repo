@@ -11,11 +11,20 @@ on:
         description: "Package manager to cache dependencies"
         required: true
         type: string
-
+      coverage:
+        description: "Set to run tests and send coverage"
+        required: false
+        type: boolean
 jobs:
   test:
-    name: Test application
+    name: Test and coverage
     runs-on: ubuntu-latest
     steps:
       - name: Test
-        run: 'echo "Running application tests."'
+        run: |
+          echo "Running application tests."
+          echo "coverage: ${{ inputs.coverage }}"
+      - name: Test
+        if: ${{ inputs.coverage }}
+        run: |
+          echo "Sending coverage report."
