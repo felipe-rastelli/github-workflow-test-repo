@@ -9,5 +9,8 @@
   
   // eslint extension options
   "eslint.enable": true,
-  "eslint.packageManager":"yarn",
+  "eslint.packageManager": "yarn",
+  "yaml.schemas": {
+    "https://json.schemastore.org/github-workflow.json": "file:///Users/rastelli/Workspace/Estudos/github-workflow-test-repo/.github/workflows/build.yml"
+  },
 }

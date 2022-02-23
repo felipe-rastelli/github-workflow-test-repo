@@ -1,0 +1,21 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: "Node version to setup environment"
+        required: true
+        type: string
+      node-cache:
+        description: "Package manager to cache dependencies"
+        required: true
+        type: string
+
+jobs:
+  build:
+    name: Build application
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build
+        run: 'echo "Running application build."'

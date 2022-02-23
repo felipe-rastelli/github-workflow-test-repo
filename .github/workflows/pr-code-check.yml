@@ -33,14 +33,15 @@ jobs:
   call-test:
     needs: call-lint
     name: Call Test
-    runs-on: ubuntu-latest
-    steps:
-      - run: 'echo "Testing the application…"'
+    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/build.yml@draft-test
+    with:
+      node-version: 16.13
+      node-cache: yarn
   call-deploy-preview:
     name: Call Deploy
     needs: [call-build, call-test]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy (Preview)
-        run: echo "Deploying the application…"
+    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/test.yml@draft-test
+    with:
+      node-version: 16.13
+      node-cache: yarn
 

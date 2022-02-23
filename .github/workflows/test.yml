@@ -1,0 +1,21 @@
+name: Test
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: "Node version to setup environment"
+        required: true
+        type: string
+      node-cache:
+        description: "Package manager to cache dependencies"
+        required: true
+        type: string
+
+jobs:
+  test:
+    name: Test application
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test
+        run: 'echo "Running application tests."'
