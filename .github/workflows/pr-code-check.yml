@@ -21,7 +21,7 @@ jobs:
   call-lint:
     if: ${{ github.event.pull_request.draft == false }}
     name: Lint
-    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/lint.yml@draft-test
+    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/lint.yml@develop
     with:
       node-version: 16.13
       node-cache: yarn
@@ -29,14 +29,14 @@ jobs:
   call-build:
     needs: call-lint
     name: Build
-    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/build.yml@draft-test
+    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/build.yml@develop
     with:
       node-version: 16.13
       node-cache: yarn
   call-test:
     needs: call-lint
     name: Test
-    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/test.yml@draft-test
+    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/test.yml@develop
     with:
       node-version: 16.13
       node-cache: yarn
