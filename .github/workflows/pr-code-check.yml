@@ -12,12 +12,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # call-lint:
-  #   name: Lint
-  #   uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/lint.yml@develop
-  #   with:
-  #     node-version: 16.13
-  #     node-cache: yarn
+  call-lint:
+    name: Lint
+    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/lint.yml@develop
+    with:
+      node-version: 16.13
+      node-cache: yarn
   call-build:
     name: Build
     runs-on: ubuntu-latest

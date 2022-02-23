@@ -1,23 +1,16 @@
 name: Lint
 
 on:
-  pull_request:
-    branches:
-      - develop
-  # workflow_call:
-  #   inputs:
-  #     node-version:
-  #       description: "Node version to setup environment"
-  #       required: true
-  #       type: string
-  #     node-cache:
-  #       description: "Package manager to cache dependencies"
-  #       required: true
-  #       type: string
-
-env:
-  NODE_VERSION: 16.13
-  NODE_CACHE: yarn
+  workflow_call:
+    inputs:
+      node-version:
+        description: "Node version to setup environment"
+        required: true
+        type: string
+      node-cache:
+        description: "Package manager to cache dependencies"
+        required: true
+        type: string
 
 jobs:
   lint:
@@ -25,13 +18,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout to repository
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.actor != 'dependabot[bot]' }}
         uses: actions/checkout@v2
         with:
           fetch-depth: 2
 
       - name: Get PR files changed
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' }}
         id: get-diff-files
         run: |
           targetBranchLatestCommitSha="${{ github.event.pull_request.base.sha }}"
@@ -46,10 +39,8 @@ jobs:
         if: ${{ steps.get-diff-files.outputs.files-changed }}
         uses: actions/setup-node@v2
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: ${{ env.NODE_CACHE }}
-          # node-version: ${{ inputs.node-version }}
-          # cache: ${{ inputs.node-cache }}
+          node-version: ${{ inputs.node-version }}
+          cache: ${{ inputs.node-cache }}
 
       - name: Install dependencies
         if: ${{ steps.get-diff-files.outputs.files-changed }}
