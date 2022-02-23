@@ -14,7 +14,7 @@ concurrency:
 jobs:
   call-lint:
     name: Lint
-    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/lint.yml@develop
+    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/lint.yml@lint-workflow-test
     with:
       node-version: 16.13
       node-cache: yarn
