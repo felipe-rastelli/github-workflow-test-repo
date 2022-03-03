@@ -3,6 +3,7 @@ name: PR Code Check
 on:
   pull_request:
     branches:
+      - main
       - develop
     types:
       - opened
@@ -17,7 +18,7 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-jobs:
+jobs:  
   call-lint:
     if: ${{ github.event.pull_request.draft == false }}
     name: Lint
@@ -25,7 +26,7 @@ jobs:
     with:
       node-version: 16.13
       node-cache: yarn
-      skip: ${{ github.actor == 'dependabot[bot]' }}
+      skip: ${{ github.actor == 'dependabot[bot]' || github.event.pull_request.head.ref == 'develop' }}
   call-build:
     needs: call-lint
     name: Build
@@ -47,4 +48,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: 'echo "Deploying the application…"'
+      - run: 'echo ${{ github.event.pull_request.head.ref }}'
 

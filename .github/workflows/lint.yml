@@ -27,13 +27,14 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 2
+          ref: ${{ github.event.pull_request.head.ref }}
 
       - name: Get PR files changed
         if: ${{ github.event_name == 'pull_request' && inputs.skip == false }}
         id: get-diff-files
         run: |
           targetBranchLatestCommitSha="${{ github.event.pull_request.base.sha }}"
-          headBranchLatestCommitSha="${{ github.sha }}"
+          headBranchLatestCommitSha="${{ github.event.pull_request.head.sha }}"
 
           diffFiles="$(git diff --no-commit-id --name-only --diff-filter=ACMRT $targetBranchLatestCommitSha $headBranchLatestCommitSha | grep -E '(.js$|.ts$)' | xargs)"
 
