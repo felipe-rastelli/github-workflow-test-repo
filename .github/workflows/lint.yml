@@ -1,0 +1,96 @@
+name: Lint
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: "Node version to setup environment"
+        type: string
+        required: true
+      node-cache:
+        description: "Package manager to cache dependencies"
+        type: string
+        required: true
+      skip:
+        description: "Skip workflow steps without skipping the workflow itself"
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  lint:
+    name: Lint Code & Style
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout to repository
+        if: ${{ inputs.skip == false }}
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+
+      - name: Get PR files changed
+        if: ${{ github.event_name == 'pull_request' && inputs.skip == false }}
+        id: get-diff-files
+        run: |
+          targetBranchLatestCommitSha="${{ github.event.pull_request.base.sha }}"
+          headBranchLatestCommitSha="${{ github.sha }}"
+
+          diffFiles="$(git diff --no-commit-id --name-only --diff-filter=ACMRT $targetBranchLatestCommitSha $headBranchLatestCommitSha | grep -E '(.js$|.ts$)' | xargs)"
+
+          echo "::echo::on"
+          echo "::set-output name=files-changed::$diffFiles"
+
+          if [[ -z $diffFiles ]]; then
+            echo "No JS/TS files changed in this PR."
+          fi
+
+      - name: Setup Node version and cache
+        if: ${{ steps.get-diff-files.outputs.files-changed }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: ${{ inputs.node-cache }}
+
+      - name: Install dependencies
+        if: ${{ steps.get-diff-files.outputs.files-changed }}
+        run: yarn install --frozen-lockfile
+
+      - name: Run lint and comment report to PR
+        if: ${{ steps.get-diff-files.outputs.files-changed }}
+        uses: reviewdog/action-eslint@v1
+        with:
+          github_token: ${{ github.token }}
+          eslint_flags: "${{ env.ESLINT_FLAGS }} ${{ env.FILENAMES }}"
+          level: warning
+          filter_mode: diff_context
+          fail_on_error: true
+        env:
+          FILENAMES: "${{ steps.get-diff-files.outputs.files-changed }}"
+          ESLINT_FLAGS: ""
+        
+      # - name: Commit & Push lint files changed
+      #   run: |
+      #     echo "DEBUG"
+      #     echo ${{ toJSON(github.actor) }}
+      #     echo "$GIT_DEFAULT_USER"
+      #     echo "DEBUG"
+
+      #     if [[ -n "$(git status --porcelain)" ]]; then
+      #       git config user.name $GIT_DEFAULT_USER
+      #       git config user.email $GIT_DEFAULT_EMAIL
+
+      #       echo "GIT USER $(git config user.name)"
+      #       echo "GIT USER $(git config user.email)"
+
+      #       git add .
+            
+      #       echo "Preparing to push the following changes:"
+      #       echo "$(git status --porcelain)"
+
+      #       git commit -m "$COMMIT_MESSAGE"
+      #       git push
+      #     else
+      #       echo "Nothing to commit, no files were modified."
+      #     fi
+      #   env:
+      #     COMMIT_MESSAGE: "chore(lint): Fix code style issues with ESLint and Prettier"
