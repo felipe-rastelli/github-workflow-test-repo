@@ -1,0 +1,32 @@
+name: PR Code Check
+
+on:
+  workflow_dispatch:
+    inputs:
+      repository:
+        description: "Node version to setup environment"
+        type: string
+        required: true
+      milestone:
+        description: "Package manager to cache dependencies"
+        type: string
+        required: true
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:  
+  test:
+    name: Test action
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get relese notes
+        uses: Beakyn/gha-format-release-notes@v1
+        id: get-release-notes
+        with:
+          repository: ${{ inputs.repository }}
+          milestone: ${{ inputs.milestone }}
+      - name: Print release notes
+        run: |
+          echo "${{ steps.get-release-notes.outputs.release-notes }}"
