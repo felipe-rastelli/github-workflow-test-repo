@@ -27,6 +27,8 @@ jobs:
         with:
           repository: ${{ github.event.inputs.repository }}
           milestone: ${{ github.event.inputs.milestone }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - name: Print release notes
         run: |
           echo "${{ steps.get-release-notes.outputs.release-notes }}"
