@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       repository:
-        description: "Node version to setup environment"
+        description: "Repo"
         type: string
         required: true
       milestone:
-        description: "Package manager to cache dependencies"
+        description: "Milestone"
         type: string
         required: true
 
@@ -21,12 +21,12 @@ jobs:
     name: Test action
     runs-on: ubuntu-latest
     steps:
-      - name: Get relese notes
+      - name: Get release notes
         uses: Beakyn/gha-format-release-notes@v1
         id: get-release-notes
         with:
-          repository: ${{ inputs.repository }}
-          milestone: ${{ inputs.milestone }}
+          repository: ${{ github.event.inputs.repository }}
+          milestone: ${{ github.event.inputs.milestone }}
       - name: Print release notes
         run: |
           echo "${{ steps.get-release-notes.outputs.release-notes }}"
