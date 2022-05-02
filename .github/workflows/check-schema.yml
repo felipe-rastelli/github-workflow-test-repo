@@ -1,12 +1,18 @@
 name: Check Graphql Schema
 
 on:
-  workflow_call
+  workflow_call:
+    skip:
+      description: "Skip workflow without failing the workflow itself"
+      type: boolean
+      required: false
+      default: false
 
 jobs:
   validate-schema:
     name: Validate schema
     runs-on: ubuntu-latest
+    if: ${{ inputs.skip == false }}
     steps:
       - name: Checkout to repository
         uses: actions/checkout@v2

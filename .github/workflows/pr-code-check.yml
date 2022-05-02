@@ -45,6 +45,8 @@ jobs:
   call-check-schema:
     name: GraphQL
     uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/check-schema.yml@graphql-inspect-test
+    with:
+      skip: true
   # call-deploy-preview:
   #   name: Deploy
   #   needs: [call-build, call-test]
