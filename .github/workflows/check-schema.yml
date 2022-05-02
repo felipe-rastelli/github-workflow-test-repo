@@ -2,11 +2,12 @@ name: Check Graphql Schema
 
 on:
   workflow_call:
-    skip:
-      description: "Skip workflow without failing the workflow itself"
-      type: boolean
-      required: false
-      default: false
+    inputs:
+      skip:
+        description: "Skip workflow without failing the workflow itself"
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   validate-schema:
