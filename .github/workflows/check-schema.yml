@@ -11,10 +11,8 @@ jobs:
       - name: Checkout to repository
         uses: actions/checkout@v2
 
-      - name: Check schema changes
-        uses: kamilkisiela/graphql-inspector@master
+      - uses: kamilkisiela/graphql-inspector@master
         with:
-          name: Validate schema
           schema: main:src/schema.graphql
           approve-label: approved-schema-breaking-change
           experimental_merge: false

@@ -43,7 +43,7 @@ jobs:
   #     node-cache: yarn
   #     coverage: ${{ github.actor != 'dependabot[bot]' }}
   call-check-schema:
-    name: Check GraphQL Schema
+    name: GraphQL
     uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/check-schema.yml@graphql-inspect-test
   # call-deploy-preview:
   #   name: Deploy
