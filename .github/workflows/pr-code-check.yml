@@ -19,34 +19,38 @@ concurrency:
   cancel-in-progress: true
 
 jobs:  
-  call-lint:
-    if: ${{ github.event.pull_request.draft == false }}
-    name: Lint
-    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/lint.yml@develop
+  # call-lint:
+  #   if: ${{ github.event.pull_request.draft == false }}
+  #   name: Lint
+  #   uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/lint.yml@develop
+  #   with:
+  #     node-version: 16.13
+  #     node-cache: yarn
+  #     skip: ${{ github.actor == 'dependabot[bot]' || github.event.pull_request.head.ref == 'develop' }}
+  # call-build:
+  #   needs: call-lint
+  #   name: Build
+  #   uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/build.yml@develop
+  #   with:
+  #     node-version: 16.13
+  #     node-cache: yarn
+  # call-test:
+  #   needs: call-lint
+  #   name: Test
+  #   uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/test.yml@develop
+  #   with:
+  #     node-version: 16.13
+  #     node-cache: yarn
+  #     coverage: ${{ github.actor != 'dependabot[bot]' }}
+  call-check-schema:
+    name: GraphQL
+    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/check-schema.yml@graphql-inspect-test
     with:
-      node-version: 16.13
-      node-cache: yarn
-      skip: ${{ github.actor == 'dependabot[bot]' || github.event.pull_request.head.ref == 'develop' }}
-  call-build:
-    needs: call-lint
-    name: Build
-    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/build.yml@develop
-    with:
-      node-version: 16.13
-      node-cache: yarn
-  call-test:
-    needs: call-lint
-    name: Test
-    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/test.yml@develop
-    with:
-      node-version: 16.13
-      node-cache: yarn
-      coverage: ${{ github.actor != 'dependabot[bot]' }}
-  call-deploy-preview:
-    name: Deploy
-    needs: [call-build, call-test]
-    runs-on: ubuntu-latest
-    steps:
-      - run: 'echo "Deploying the application…"'
-      - run: 'echo ${{ github.event.pull_request.head.ref }}'
-
+      skip: true
+  # call-deploy-preview:
+  #   name: Deploy
+  #   needs: [call-build, call-test]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - run: 'echo "Deploying the application…"'
+  #     - run: 'echo ${{ github.event.pull_request.head.ref }}'
