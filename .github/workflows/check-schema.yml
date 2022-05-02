@@ -1,0 +1,18 @@
+name: Check Graphql Schema
+
+on:
+  workflow_call
+
+jobs:
+  validate-schema:
+    name: Validate GraphQL Schema
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout to repository
+        uses: actions/checkout@v2
+
+      - name: Validate schema
+        uses: kamilkisiela/graphql-inspector@master
+        with:
+          schema: 'main:src/schema.graphql'
+          approve-label: 'approved-schema-breaking-change'
