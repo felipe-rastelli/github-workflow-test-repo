@@ -1,0 +1,21 @@
+{
+  "name": "github-workflow-test-repo",
+  "version": "1.0.0",
+  "main": "app.js",
+  "repository": "git@github.com:felipe-rastelli/github-workflow-test-repo.git",
+  "author": "Rastelli <felipe-rastelli@hotmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint . --ext .js"
+  },
+  "devDependencies": {
+    "eslint": "^8.9.0",
+    "eslint-config-prettier": "^8.4.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.5.1"
+  },
+  "dependencies": {
+    "express": "^4.17.3"
+  }
+}
