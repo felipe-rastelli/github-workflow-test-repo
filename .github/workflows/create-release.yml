@@ -17,14 +17,19 @@ jobs:
     name: Create Release Pull Request
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout to repository
+        uses: actions/checkout@v2
+
       - name: "DEBUG 1"
         run: |
-          echo "*******GITHUB CONTEXT*******"
-          echo ${{ toJSON(github) }}
-
           echo "*******GIT CONTEXT*******"
           echo "$(git config user.name)"
           echo "$(git config user.email)"
+
+      - name: "DEBUG 2"
+        run: |
+          echo "*******GITHUB CONTEXT*******"
+          echo ${{ toJSON(github) }}
 
       # - name: Get next version tag
       #   id: get-next-version-tag
