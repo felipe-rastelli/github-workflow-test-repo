@@ -1,0 +1,58 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      milestone-id:
+        description: Milestone ID to get release information
+        type: string
+        required: true
+
+concurrency:
+  cancel-in-progress: true
+  group: cd-${{ github.workflow }}-${{ github.ref }}
+  
+jobs:
+  release-prod:
+    name: Create Release Pull Request
+    runs-on: ubuntu-latest
+    steps:
+      - name: "DEBUG"
+        run: "echo ${{ toJSON(github) }}"
+
+      # - name: Get next version tag
+      #   id: get-next-version-tag
+      #   run: "echo TODO: get version from milestone title"
+
+      # - name: Get release notes
+      #   uses: Beakyn/gha-format-release-notes@v1
+      #   id: get-release-notes
+      #   with:
+      #     repository: ${{ github.repository }}
+      #     milestone: ${{ github.event.inputs.milestone-id }}
+
+      # - name: Checkout to repository
+      #   uses: actions/checkout@v2
+
+      # - name: Config git machine user
+      #   run: |
+      #     git config user.name ${{ github.actor }}
+      #     git config user.email $GIT_DEFAULT_EMAIL
+
+      # - name: Checkout to release branch
+      #   run: "echo TODO: create release/<version> branch from event source branch and checkout to the branch"
+        
+      # - name: Bump version
+      #   run: |
+      #     npm --no-git-tag-version version ${{ steps.get-next-version-tag.outputs.next-version }}
+
+      # - name: Write changelog
+      #   run: ""
+
+      # - name: Commit changes
+      #   run: |
+      #     git add .
+      #     git commit -m "Release ${{ steps.get-next-version-tag.outputs.next-version }}"
+
+      # - name: Create PR to master branch
+      #   run: ""
