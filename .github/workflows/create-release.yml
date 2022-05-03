@@ -23,8 +23,8 @@ jobs:
           echo ${{ toJSON(github) }}
 
           echo "*******GIT CONTEXT*******"
-          echo $(git config user.name)
-          echo $(git config user.email)
+          echo "$(git config user.name)"
+          echo "$(git config user.email)"
 
       # - name: Get next version tag
       #   id: get-next-version-tag
