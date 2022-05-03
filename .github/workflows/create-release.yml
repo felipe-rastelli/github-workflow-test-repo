@@ -17,8 +17,14 @@ jobs:
     name: Create Release Pull Request
     runs-on: ubuntu-latest
     steps:
-      - name: "DEBUG"
-        run: "echo ${{ toJSON(github) }}"
+      - name: "DEBUG 1"
+        run: |
+          echo "*******GITHUB CONTEXT*******"
+          echo ${{ toJSON(github) }}
+
+          echo "*******GIT CONTEXT*******"
+          echo $(git config user.name)
+          echo $(git config user.email)
 
       # - name: Get next version tag
       #   id: get-next-version-tag
