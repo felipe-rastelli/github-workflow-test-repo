@@ -82,8 +82,8 @@ jobs:
             --title "$title" \
             --body "$body" \
             --head \
-            --base $BASE_BRANCH \
-            --assignee $ASSIGNEE
+            --base "$BASE_BRANCH" \
+            --assignee "$ASSIGNEE"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MILESTONE_NAME: ${{ steps.get-next-version-tag.outputs.next-version }}
