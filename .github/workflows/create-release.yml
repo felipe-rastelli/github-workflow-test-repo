@@ -87,12 +87,12 @@ jobs:
 
           currentBranch=$(git rev-parse --abbrev-ref HEAD)
 
-          prExists=$(gh pr list --base "$BASE_BRANCH" --head "$currentBranch" --json "id")
+          prExists=$(gh pr list --base "$BASE_BRANCH" --head "$currentBranch" --json "id" --jq ".[].id")
 
           if [[ -n $prExists ]]; then
             echo "$prExists"
 
-            gr pr close $prExists[0].id
+            gr pr close $prExists
           fi
 
           gh pr create \
