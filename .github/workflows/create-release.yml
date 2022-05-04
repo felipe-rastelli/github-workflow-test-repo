@@ -33,9 +33,13 @@ jobs:
       - name: Get next version tag
         id: get-next-version-tag
         run: |
-          milestone="$(gh api repos/$GITHUB_REPOSITORY/milestones/${{ github.events.inputs.milestone-id }} --jq '.title')"
+          milestone="$(gh api repos/$GITHUB_REPOSITORY/milestones/$MILESTONE_ID --jq '.title')"
           echo "::echo::on"
           echo "::set-output name=next-version::$milestone"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          MILESTONE_ID: ${{ github.events.inputs.milestone-id }}
 
       - name: Get release notes
         uses: Beakyn/gha-format-release-notes@v1
@@ -82,8 +86,19 @@ jobs:
 
       - name: Create PR to master branch
         run: |
-          gh pr create --milestone ${{ github.event.inputs.milestone-id }} 
-            --title "Release ${{ steps.get-next-version-tag.outputs.next-version }}"
-            --body ${{ steps.write-changelog.outputs.changelog }}
-            --base master
-            --assignee ${{ github.actor }}
+          prDescription="
+            Releasing version $VERSION\n\n
+            ${{ steps.write-changelog.outputs.changelog }}
+          "
+          
+          gh pr create --milestone $MILESTONE_ID
+            --title "Release $VERSION"
+            --body $prDescription
+            --base $BASE_BRANCH
+            --assignee $ASSIGNEE
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MILESTONE_ID: ${{ github.events.inputs.milestone-id }}
+          BASE_BRANCH: master
+          ASSIGNEE: ${{ github.actor }}
+          VERSION: ${{ steps.get-next-version-tag.outputs.next-version }}
