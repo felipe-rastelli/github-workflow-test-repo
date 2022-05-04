@@ -72,10 +72,11 @@ jobs:
 
       - name: Create release PR
         run: |
+          title="Release $VERSION"
           body="## Releasing version $VERSION \n\n${{ steps.write-changelog.outputs.changelog }}"
 
           gh pr create --milestone $MILESTONE_ID \
-            --title "Release $VERSION" \
+            --title "$title" \
             --body "$body" \
             --base $BASE_BRANCH \
             --assignee $ASSIGNEE
