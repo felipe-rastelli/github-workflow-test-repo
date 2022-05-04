@@ -40,7 +40,6 @@ jobs:
       - name: Checkout to repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
           ref: ${{ github.ref_name }}
 
       - name: Config git user
@@ -82,11 +81,12 @@ jobs:
             --milestone "$MILESTONE_NAME" \
             --title "$title" \
             --body "$body" \
+            --head \
             --base $BASE_BRANCH \
             --assignee $ASSIGNEE
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MILESTONE_NAME: ${{ steps.get-next-version-tag.outputs.next-version }}
-          BASE_BRANCH: master
+          BASE_BRANCH: main
           ASSIGNEE: ${{ github.actor }}
           VERSION: ${{ steps.get-next-version-tag.outputs.next-version }}
