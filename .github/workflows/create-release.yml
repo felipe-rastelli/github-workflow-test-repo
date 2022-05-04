@@ -64,7 +64,7 @@ jobs:
           today=$(date +%F)
 
           HEADER="## ${{ steps.get-next-version-tag.outputs.next-version }} ($today)"
-          RELEASE_NOTES=${{ steps.get-release-notes.outputs.release-notes }}
+          RELEASE_NOTES="${{ steps.get-release-notes.outputs.release-notes }}"
 
           body="$HEADER\n$RELEASE_NOTES\n"
 
