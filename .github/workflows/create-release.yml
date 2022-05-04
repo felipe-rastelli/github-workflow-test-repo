@@ -93,7 +93,7 @@ jobs:
             echo 'Found a PR #${prExists} with target "$BASE_BRANCH" and source "${currentBranch}". The changes were pushed to source branch and no aditional action is necessary.'
             # gh pr close $prExists
           else
-            echo 'There's no PR with target "$BASE_BRANCH" and source "${currentBranch}". A new PR will be created.'
+            echo 'There is no PR with target "$BASE_BRANCH" and source "${currentBranch}". A new PR will be created.'
             gh pr create \
               --title "$title" \
               --body "$releaseNotes" \
