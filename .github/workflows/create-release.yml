@@ -81,7 +81,7 @@ jobs:
             --assignee $ASSIGNEE
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MILESTONE_ID: ${{ github.event.inputs.milestone-id }}
+          MILESTONE_NAME: ${{ steps.get-next-version-tag.outputs.next-version }}
           BASE_BRANCH: master
           ASSIGNEE: ${{ github.actor }}
           VERSION: ${{ steps.get-next-version-tag.outputs.next-version }}
