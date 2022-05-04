@@ -47,8 +47,8 @@ jobs:
           git config user.name $GIT_USERNAME
           git config user.email $GIT_USER_EMAIL
         env:
-          GIT_USERNAME: "GitHub Action"
-          GIT_USER_EMAIL: "github-action@users.noreply.github.com"
+          GIT_USERNAME: "github-actions[bot]"
+          GIT_USER_EMAIL: "github-actions@github.com"
 
       - name: Checkout to release branch
         run: |
@@ -90,18 +90,18 @@ jobs:
           prExists=$(gh pr list --base "$BASE_BRANCH" --head "$currentBranch" --json "number" --jq ".[].number")
 
           if [[ -n $prExists ]]; then
-            echo "$prExists"
-
-            gh pr close $prExists
+            echo 'Found a PR #${prExists} with target "$BASE_BRANCH" and source "${currentBranch}". The changes were pushed to source branch and no aditional action is necessary.'
+            # gh pr close $prExists
+          else
+            echo 'There's no PR with target "$BASE_BRANCH" and source "${currentBranch}". A new PR will be created.'
+            gh pr create \
+              --title "$title" \
+              --body "$releaseNotes" \
+              --milestone "$MILESTONE_NAME" \
+              --assignee "$ASSIGNEE" \
+              --head "$currentBranch" \
+              --base "$BASE_BRANCH"
           fi
-
-          gh pr create \
-            --title "$title" \
-            --body "$releaseNotes" \
-            --milestone "$MILESTONE_NAME" \
-            --assignee "$ASSIGNEE" \
-            --head "$currentBranch" \
-            --base "$BASE_BRANCH"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MILESTONE_NAME: ${{ steps.get-next-version-tag.outputs.next-version }}
