@@ -7,6 +7,14 @@ on:
         description: Milestone ID to get release information
         type: string
         required: true
+      username:
+        description: Git username to test
+        type: string
+        required: true
+      email:
+        description: Git email to test
+        type: string
+        required: false
 
 concurrency:
   cancel-in-progress: true
@@ -17,53 +25,65 @@ jobs:
     name: Create Release Pull Request
     runs-on: ubuntu-latest
     steps:
+      # - name: "DEBUG 2"
+      #   run: |
+      #     echo "*******GITHUB CONTEXT*******"
+      #     echo ${{ toJSON(github) }}
+
+      - name: Get next version tag
+        id: get-next-version-tag
+        run: |
+          milestone="$(gh api repos/$GITHUB_REPOSITORY/milestones/${{ github.events.inputs.milestone-id }} --jq '.title')"
+          echo "::echo::on"
+          echo "::set-output name=next-version::$milestone"
+
+      - name: Get release notes
+        uses: Beakyn/gha-format-release-notes@v1
+        id: get-release-notes
+        with:
+          repository: ${{ github.repository }}
+          milestone: ${{ github.event.inputs.milestone-id }}
+
       - name: Checkout to repository
         uses: actions/checkout@v2
 
-      - name: "DEBUG 1"
+      - name: Config git machine user
         run: |
-          echo "*******GIT CONTEXT*******"
-          echo "$(git config user.name)"
-          echo "$(git config user.email)"
+          git config user.name ${{ github.actor }}
+          # git config user.email ${{ github.event.inputs.email }}
 
-      - name: "DEBUG 2"
+      - name: Checkout to release branch
         run: |
-          echo "*******GITHUB CONTEXT*******"
-          echo ${{ toJSON(github) }}
-
-      # - name: Get next version tag
-      #   id: get-next-version-tag
-      #   run: "echo TODO: get version from milestone title"
-
-      # - name: Get release notes
-      #   uses: Beakyn/gha-format-release-notes@v1
-      #   id: get-release-notes
-      #   with:
-      #     repository: ${{ github.repository }}
-      #     milestone: ${{ github.event.inputs.milestone-id }}
-
-      # - name: Checkout to repository
-      #   uses: actions/checkout@v2
-
-      # - name: Config git machine user
-      #   run: |
-      #     git config user.name ${{ github.actor }}
-      #     git config user.email $GIT_DEFAULT_EMAIL
-
-      # - name: Checkout to release branch
-      #   run: "echo TODO: create release/<version> branch from event source branch and checkout to the branch"
+          git checkout -b release/${{ github.event.inputs.milestone-id }}
         
-      # - name: Bump version
-      #   run: |
-      #     npm --no-git-tag-version version ${{ steps.get-next-version-tag.outputs.next-version }}
+      - name: Bump version
+        run: |
+          npm --no-git-tag-version version ${{ steps.get-next-version-tag.outputs.next-version }}
 
-      # - name: Write changelog
-      #   run: ""
+      - name: Write changelog
+        id: write-changelog
+        run: |
+          today=$(date +%F)
+          body="
+            ## ${{ steps.get-next-version-tag.outputs.next-version }} ($currentDate)\n
+            ${{ steps.get-release-notes.outputs.release-notes }}\n
+          "
 
-      # - name: Commit changes
-      #   run: |
-      #     git add .
-      #     git commit -m "Release ${{ steps.get-next-version-tag.outputs.next-version }}"
+          { head -n 4 CHANGELOG.md; printf "$body"; tail -n +5 CHANGELOG.md; } > temp && mv temp CHANGELOG.md
+          cat CHANGELOG.md
 
-      # - name: Create PR to master branch
-      #   run: ""
+          echo "::echo::on"
+          echo "::set-output name=changelog::$body"          
+
+      - name: Commit changes
+        run: |
+          git add .
+          git commit -m "Release ${{ steps.get-next-version-tag.outputs.next-version }}"
+
+      - name: Create PR to master branch
+        run: |
+          gh pr create --milestone ${{ github.event.inputs.milestone-id }} 
+            --title "Release ${{ steps.get-next-version-tag.outputs.next-version }}"
+            --body ${{ steps.write-changelog.outputs.changelog }}
+            --base master
+            --assignee ${{ github.actor }}
