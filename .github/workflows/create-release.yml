@@ -40,10 +40,9 @@ jobs:
       - name: Checkout to repository
         uses: actions/checkout@v3
 
-      # - name: Config git user
-      #   run: |
-      #     git config user.name ${{ github.actor }}
-      #     # git config user.email ${{ github.event.inputs.email }}
+      - name: Config git user
+        run: |
+          git config user.name ${{ github.actor }}
 
       - name: Checkout to release branch
         run: |
@@ -57,10 +56,7 @@ jobs:
         id: write-changelog
         run: |
           today=$(date +%F)
-          body="\
-            ## ${{ steps.get-next-version-tag.outputs.next-version }} ($today)\n \
-            ${{ steps.get-release-notes.outputs.release-notes }}\n \
-          "
+          body="## ${{ steps.get-next-version-tag.outputs.next-version }} ($today) \n\n${{ steps.get-release-notes.outputs.release-notes }}\n"
 
           { head -n 4 CHANGELOG.md; printf "$body"; tail -n +5 CHANGELOG.md; } > temp && mv temp CHANGELOG.md
           cat CHANGELOG.md
@@ -75,10 +71,7 @@ jobs:
 
       - name: Create release PR
         run: |
-          body="\
-            ## Releasing version $VERSION\n \
-            ${{ steps.write-changelog.outputs.changelog }} \
-          "
+          body="## Releasing version $VERSION \n\n${{ steps.write-changelog.outputs.changelog }}"
 
           gh pr create --milestone $MILESTONE_ID \
             --title "Release $VERSION" \
