@@ -75,7 +75,8 @@ jobs:
           title="Release $VERSION"
           body="## Releasing version $VERSION \n\n${{ steps.write-changelog.outputs.changelog }}"
 
-          gh pr create --milestone $MILESTONE_ID \
+          gh pr create \
+            --milestone "$MILESTONE_NAME" \
             --title "$title" \
             --body "$body" \
             --base $BASE_BRANCH \
