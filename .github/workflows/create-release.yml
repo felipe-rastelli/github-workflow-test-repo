@@ -77,12 +77,15 @@ jobs:
           title="Release $VERSION"
           body="## Releasing version $VERSION \n\n${{ steps.write-changelog.outputs.changelog }}"
 
+          currentBranch=$(git rev-parse --abbrev-ref HEAD)
+
           gh pr create \
-            --milestone "$MILESTONE_NAME" \
             --title "$title" \
             --body "$body" \
-            --base "$BASE_BRANCH" \
-            --assignee "$ASSIGNEE"
+            --milestone "$MILESTONE_NAME" \
+            --assignee "$ASSIGNEE" \
+            --head "$currentBranch" \
+            --base "$BASE_BRANCH"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MILESTONE_NAME: ${{ steps.get-next-version-tag.outputs.next-version }}
