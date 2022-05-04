@@ -47,6 +47,8 @@ jobs:
         with:
           repository: ${{ github.repository }}
           milestone: ${{ github.event.inputs.milestone-id }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Checkout to repository
         uses: actions/checkout@v2
