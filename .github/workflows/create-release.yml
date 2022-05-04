@@ -81,7 +81,6 @@ jobs:
             --milestone "$MILESTONE_NAME" \
             --title "$title" \
             --body "$body" \
-            --head \
             --base "$BASE_BRANCH" \
             --assignee "$ASSIGNEE"
         env:
