@@ -4,17 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       milestone-id:
-        description: Milestone ID to get release information
+        description: Milestone ID to get release info
         type: string
         required: true
-      username:
-        description: Git username to test
-        type: string
-        required: true
-      email:
-        description: Git email to test
-        type: string
-        required: false
+      # username:
+      #   description: Git username to test
+      #   type: string
+      #   required: true
+      # email:
+      #   description: Git email to test
+      #   type: string
+      #   required: false
 
 concurrency:
   cancel-in-progress: true
@@ -39,7 +39,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          MILESTONE_ID: ${{ github.events.inputs.milestone-id }}
+          MILESTONE_ID: ${{ github.event.inputs.milestone-id }}
 
       - name: Get release notes
         uses: Beakyn/gha-format-release-notes@v1
@@ -90,7 +90,7 @@ jobs:
             Releasing version $VERSION\n\n
             ${{ steps.write-changelog.outputs.changelog }}
           "
-          
+
           gh pr create --milestone $MILESTONE_ID
             --title "Release $VERSION"
             --body $prDescription
@@ -98,7 +98,7 @@ jobs:
             --assignee $ASSIGNEE
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MILESTONE_ID: ${{ github.events.inputs.milestone-id }}
+          MILESTONE_ID: ${{ github.event.inputs.milestone-id }}
           BASE_BRANCH: master
           ASSIGNEE: ${{ github.actor }}
           VERSION: ${{ steps.get-next-version-tag.outputs.next-version }}
