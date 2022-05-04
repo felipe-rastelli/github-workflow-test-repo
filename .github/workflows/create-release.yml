@@ -44,7 +44,11 @@ jobs:
 
       - name: Config git user
         run: |
-          git config user.name ${{ github.actor }}
+          git config user.name $GIT_USERNAME
+          git config user.email $GIT_USER_EMAIL
+        env:
+          GIT_USERNAME: "GitHub Action"
+          GIT_USER_EMAIL: "github-action@users.noreply.github.com"
 
       - name: Checkout to release branch
         run: |
@@ -58,7 +62,11 @@ jobs:
         id: write-changelog
         run: |
           today=$(date +%F)
-          body="## ${{ steps.get-next-version-tag.outputs.next-version }} ($today) \n${{ steps.get-release-notes.outputs.release-notes }} \n"
+
+          HEADER="## ${{ steps.get-next-version-tag.outputs.next-version }} ($today)"
+          RELEASE_NOTES=${{ steps.get-release-notes.outputs.release-notes }}
+
+          body="$HEADER\n$RELEASE_NOTES\n"
 
           { head -n 4 CHANGELOG.md; printf "$body"; tail -n +5 CHANGELOG.md; } > temp && mv temp CHANGELOG.md
           cat CHANGELOG.md
@@ -75,7 +83,7 @@ jobs:
       - name: Create release PR
         run: |
           title="Release $VERSION"
-          body="## Releasing version $VERSION \n\n${{ steps.write-changelog.outputs.changelog }}"
+          body="${{ steps.write-changelog.outputs.changelog }}"
 
           currentBranch=$(git rev-parse --abbrev-ref HEAD)
 
