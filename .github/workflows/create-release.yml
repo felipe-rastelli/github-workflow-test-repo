@@ -48,7 +48,7 @@ jobs:
           git config user.email $GIT_USER_EMAIL
         env:
           GIT_USERNAME: "github-actions[bot]"
-          GIT_USER_EMAIL: "github-actions@github.com"
+          GIT_USER_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Checkout to release branch
         run: |
@@ -58,8 +58,7 @@ jobs:
         run: |
           npm --no-git-tag-version version ${{ steps.get-next-version-tag.outputs.next-version }}
 
-      - name: Write changelog
-        id: write-changelog
+      - name: Write changelog to file
         run: |
           today=$(date +%F)
 
@@ -70,9 +69,6 @@ jobs:
 
           { head -n 4 CHANGELOG.md; printf "$body"; tail -n +5 CHANGELOG.md; } > temp && mv temp CHANGELOG.md
           cat CHANGELOG.md
-
-          echo "::echo::on"
-          echo "::set-output name=changelog::$body"
 
       - name: Commit changes to remote
         run: |
@@ -87,13 +83,13 @@ jobs:
 
           currentBranch=$(git rev-parse --abbrev-ref HEAD)
 
-          prExists=$(gh pr list --base "$BASE_BRANCH" --head "$currentBranch" --json "number" --jq ".[].number")
+          prNumber=$(gh pr list --base "$BASE_BRANCH" --head "$currentBranch" --json "number" --jq ".[].number")
 
-          if [[ -n $prExists ]]; then
-            echo 'Found a PR #${prExists} with target "$BASE_BRANCH" and source "${currentBranch}". The changes were pushed to source branch and no aditional action is necessary.'
-            # gh pr close $prExists
+          if [[ -n $prNumber ]]; then
+            echo "Found a PR (#$prNumber) with target \"$BASE_BRANCH\" and HEAD \"$currentBranch\". The changes were pushed to source branch and no aditional action is necessary."
+            # gh pr close $prNumber
           else
-            echo 'There is no PR with target "$BASE_BRANCH" and source "${currentBranch}". A new PR will be created.'
+            echo "There is no PR with target \"$BASE_BRANCH\" and source \"$currentBranch\". A new PR will be created."
             gh pr create \
               --title "$title" \
               --body "$releaseNotes" \
