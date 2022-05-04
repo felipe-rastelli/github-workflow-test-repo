@@ -92,7 +92,7 @@ jobs:
           if [[ -n $prExists ]]; then
             echo "$prExists"
 
-            gr pr close $prExists
+            gh pr close $prExists
           fi
 
           gh pr create \
