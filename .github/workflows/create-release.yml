@@ -72,7 +72,7 @@ jobs:
           cat CHANGELOG.md
 
           echo "::echo::on"
-          echo "::set-output name=changelog::'$body'"
+          echo "::set-output name=changelog::$body"
 
       - name: Commit changes to remote
         run: |
@@ -83,7 +83,7 @@ jobs:
       - name: Create release PR
         run: |
           title="Release $VERSION"
-          body="${{ steps.write-changelog.outputs.changelog }}"
+          releaseNotes="${{ steps.get-release-notes.outputs.release-notes }}"
 
           currentBranch=$(git rev-parse --abbrev-ref HEAD)
 
@@ -97,7 +97,7 @@ jobs:
 
           gh pr create \
             --title "$title" \
-            --body "$body" \
+            --body "$releaseNotes" \
             --milestone "$MILESTONE_NAME" \
             --assignee "$ASSIGNEE" \
             --head "$currentBranch" \
