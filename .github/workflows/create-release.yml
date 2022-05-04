@@ -87,7 +87,7 @@ jobs:
 
           currentBranch=$(git rev-parse --abbrev-ref HEAD)
 
-          prExists=$(gh pr list --base "$BASE_BRANCH" --head "$currentBranch" --json "id" --jq ".[].id")
+          prExists=$(gh pr list --base "$BASE_BRANCH" --head "$currentBranch" --json "number" --jq ".[].number")
 
           if [[ -n $prExists ]]; then
             echo "$prExists"
