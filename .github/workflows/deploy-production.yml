@@ -37,7 +37,7 @@ jobs:
       - name: Get version
         id: get-version
         run: |
-          version=${{ fromJson(steps.read-package.json.outputs.package-json).version }}
+          version=${{ fromJson(steps.read-package-json.outputs.package-json).version }}
           echo "::set-output name=version::$version"
       
       - name: Extract release notes
