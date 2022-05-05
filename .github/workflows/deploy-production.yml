@@ -25,11 +25,6 @@ jobs:
     runs-on: ubuntu-latest
     # outputs:
     steps:
-      - name: Get milestone
-        run: |
-          data="$(gh api repos/$GITHUB_REPOSITORY/milestones)"
-          echo $data
-          
       - name: Checkout to repository
         uses: actions/checkout@v3
 
@@ -39,6 +34,14 @@ jobs:
           version=$(cat package.json | jq ".version")
           echo "::set-output name=version::$version"
 
+      - name: Get milestone
+        run: |
+          data="$(gh api repos/$GITHUB_REPOSITORY/milestones)"
+          echo $data
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          
       # - name: Extract release notes
       #   id: extract_release_notes
       #   uses: ffurrer2/extract-release-notes@v1
