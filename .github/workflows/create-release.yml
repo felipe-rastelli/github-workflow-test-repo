@@ -1,0 +1,106 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      milestone-id:
+        description: Milestone ID to get release info
+        type: string
+        required: true
+
+concurrency:
+  cancel-in-progress: true
+  group: cd-${{ github.workflow }}-${{ github.ref }}
+  
+jobs:
+  release-prod:
+    name: Create Release Pull Request
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get next version tag
+        id: get-next-version-tag
+        run: |
+          milestone="$(gh api repos/$GITHUB_REPOSITORY/milestones/$MILESTONE_ID --jq '.title')"
+          echo "::echo::on"
+          echo "::set-output name=next-version::$milestone"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          MILESTONE_ID: ${{ github.event.inputs.milestone-id }}
+
+      - name: Get release notes
+        uses: Beakyn/gha-format-release-notes@v1
+        id: get-release-notes
+        with:
+          repository: ${{ github.repository }}
+          milestone: ${{ github.event.inputs.milestone-id }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout to repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Config git user
+        run: |
+          git config user.name $GIT_USERNAME
+          git config user.email $GIT_USER_EMAIL
+        env:
+          GIT_USERNAME: "github-actions[bot]"
+          GIT_USER_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Checkout to release branch
+        run: |
+          git checkout -b release/${{ steps.get-next-version-tag.outputs.next-version }}
+        
+      - name: Bump version
+        run: |
+          npm --no-git-tag-version version ${{ steps.get-next-version-tag.outputs.next-version }}
+
+      - name: Write changelog to file
+        run: |
+          today=$(date +%F)
+
+          HEADER="## ${{ steps.get-next-version-tag.outputs.next-version }} ($today)"
+          RELEASE_NOTES="${{ steps.get-release-notes.outputs.release-notes }}"
+
+          body="$HEADER\n$RELEASE_NOTES\n"
+
+          { head -n 4 CHANGELOG.md; printf "$body"; tail -n +5 CHANGELOG.md; } > temp && mv temp CHANGELOG.md
+          cat CHANGELOG.md
+
+      - name: Commit changes to remote
+        run: |
+          git add .
+          git commit -m "Release ${{ steps.get-next-version-tag.outputs.next-version }}"
+          git push -f origin $(git rev-parse --abbrev-ref HEAD)
+
+      - name: Create release PR
+        run: |
+          title="Release $VERSION"
+          releaseNotes="${{ steps.get-release-notes.outputs.release-notes }}"
+
+          currentBranch=$(git rev-parse --abbrev-ref HEAD)
+
+          prNumber=$(gh pr list --base "$BASE_BRANCH" --head "$currentBranch" --json "number" --jq ".[].number")
+
+          if [[ -n $prNumber ]]; then
+            echo "Found a PR (#$prNumber) with target \"$BASE_BRANCH\" and HEAD \"$currentBranch\". The changes were pushed to source branch and no aditional action is necessary."
+            # gh pr close $prNumber
+          else
+            echo "There is no PR with target \"$BASE_BRANCH\" and source \"$currentBranch\". A new PR will be created."
+            gh pr create \
+              --title "$title" \
+              --body "$releaseNotes" \
+              --milestone "$MILESTONE_NAME" \
+              --assignee "$ASSIGNEE" \
+              --head "$currentBranch" \
+              --base "$BASE_BRANCH"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MILESTONE_NAME: ${{ steps.get-next-version-tag.outputs.next-version }}
+          BASE_BRANCH: main
+          ASSIGNEE: ${{ github.actor }}
+          VERSION: ${{ steps.get-next-version-tag.outputs.next-version }}
