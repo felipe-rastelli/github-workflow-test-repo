@@ -43,18 +43,18 @@ jobs:
       #     version=${{ fromJson(steps.read-package-json.outputs.package-json).version }}
       #     echo "::set-output name=version::$version"
       
-      - name: Extract release notes
-        id: extract_release_notes
-        uses: ffurrer2/extract-release-notes@v1
-        with:
-          prerelease: true
+      # - name: Extract release notes
+      #   id: extract_release_notes
+      #   uses: ffurrer2/extract-release-notes@v1
+      #   with:
+      #     prerelease: true
 
       - name: DEBUG
         run: | 
           # echo "VERSION: ${{ steps.get-version.outputs.version }}"
-          echo "RELEASE NOTES: ${{ steps.extract_release_notes.outputs.release_notes }}"
+          # echo "RELEASE NOTES: ${{ steps.extract_release_notes.outputs.release_notes }}"
 
-          echo "${{ fromJson(github.event) }}"
+          echo "${{ fromJson(github) }}"
 
       # - name: Get release notes
       #   id: get-release-notes
