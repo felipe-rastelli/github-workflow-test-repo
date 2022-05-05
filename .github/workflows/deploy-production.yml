@@ -28,21 +28,19 @@ jobs:
       - name: Checkout to repository
         uses: actions/checkout@v3
 
-      - name: Read package.json
-        id: read-package-json
-        run: |
-          packageJson=$(cat package.json | xargs)
-          echo "::echo::on"
-          echo "::set-output name=package-json::$packageJson"
-
-      # - name: Get version
-      #   id: get-version
+      # - name: Read package.json
+      #   id: read-package-json
       #   run: |
-      #     echo ${{ steps.read-package-json.outputs.package-json }}
+      #     packageJson=$(cat package.json | xargs)
+      #     echo "::echo::on"
+      #     echo "::set-output name=package-json::$packageJson"
 
-      #     version=${{ fromJson(steps.read-package-json.outputs.package-json).version }}
-      #     echo "::set-output name=version::$version"
-      
+      - name: Get version
+        id: get-version
+        run: |
+          version=$(cat package.json | jq ".version")
+          echo "::set-output name=version::$version"
+
       # - name: Extract release notes
       #   id: extract_release_notes
       #   uses: ffurrer2/extract-release-notes@v1
