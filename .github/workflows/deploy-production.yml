@@ -34,33 +34,32 @@ jobs:
           version=$(cat package.json | jq ".version")
           echo "::set-output name=version::$version"
 
-      - name: Get milestone
+      - name: Get milestone number
+        id: get-milestone-number
         run: |
           data="$(gh api repos/$GITHUB_REPOSITORY/milestones)"
-          echo $data
+          milestoneNumber=$(data | jq '.[] | select(.title == ${{ steps.get-version.outputs.version }}) | .number')
+
+          echo "::echo::on"
+          echo "::set-output name=milestone-number::$milestoneNumber"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          
-      # - name: Extract release notes
-      #   id: extract_release_notes
-      #   uses: ffurrer2/extract-release-notes@v1
-      #   with:
-      #     prerelease: true
+
+      - name: Get release notes
+        id: get-release-notes
+        uses: Beakyn/gha-format-release-notes@v1
+        with:
+          repository: ${{ github.repository }}
+          milestone: ${{ steps.get-milestone-number.outputs.milestone-number }}
 
       - name: DEBUG
         run: | 
-          # echo "VERSION: ${{ steps.get-version.outputs.version }}"
-          # echo "RELEASE NOTES: ${{ steps.extract_release_notes.outputs.release_notes }}"
+          echo "VERSION: \n${{ steps.get-version.outputs.version }}"
+          echo "RELEASE NOTES: \n${{ steps.get-release-notes.outputs.release-notes }}"
 
           echo "${{ toJSON(github) }}"
 
-      # - name: Get release notes
-      #   id: get-release-notes
-      #   uses: Beakyn/gha-format-release-notes@v1
-      #   with:
-      #     repository: ${{ github.repository }}
-      #     milestone: ${{ github.event.inputs.milestone }}
 
   # call-migration:
   #   needs: get-package-version
