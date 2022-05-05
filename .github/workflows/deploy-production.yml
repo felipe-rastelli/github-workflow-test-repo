@@ -37,7 +37,10 @@ jobs:
       - name: Get milestone number
         id: get-milestone-number
         run: |
-          milestoneNumber="$(gh api repos/$GITHUB_REPOSITORY/milestones --jq '.[] | select(.title == "${{ steps.get-version.outputs.version }}") | .number')"
+          milestoneTitle="v${{ steps.get-version.outputs.version }}"
+          milestoneNumber="$(gh api repos/$GITHUB_REPOSITORY/milestones --jq '.[] | select(.title == $milestoneTitle) | .number')"
+
+          echo $milestoneTitle
 
           echo "::echo::on"
           echo "::set-output name=milestone-number::$milestoneNumber"
