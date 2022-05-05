@@ -1,0 +1,265 @@
+name: Deploy Production
+
+on:
+  push:
+    branches:
+      - "main"
+
+concurrency:
+  group: cd-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # check-branch:
+  #   # Prevent to manually deploy other then 'master' branch to production environment
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Check Production branch ref
+  #       if: ${{ github.ref != 'refs/heads/master' }}
+  #       run: |
+  #         echo "Cannot deploy to production server from a branch different of 'master'"
+  #         exit 1
+
+  get-release-data:
+    name: Get release data
+    runs-on: ubuntu-latest
+    # outputs:
+    steps:
+      - name: Checkout to repository
+        uses: actions/checkout@v3
+
+      - name: Get version
+        id: get-version
+        run: |
+          version=${{ fromJson($(cat package.json)).version }}
+          echo "::set-output:: name=version::$version"
+      
+      - name: Extract release notes
+        id: extract_release_notes
+        uses: ffurrer2/extract-release-notes@v1
+        with:
+          prerelease: true
+
+      - name: DEBUG
+        run: | 
+          echo "VERSION: ${{ steps.get-version.outputs.version }}"
+          echo "RELEASE NOTES: ${{ steps.extract_release_notes.outputs.release_notes }}"
+
+          echo "${{ fromJson(github.event) }}"
+
+      # - name: Get release notes
+      #   id: get-release-notes
+      #   uses: Beakyn/gha-format-release-notes@v1
+      #   with:
+      #     repository: ${{ github.repository }}
+      #     milestone: ${{ github.event.inputs.milestone }}
+
+  # call-migration:
+  #   needs: get-package-version
+  #   name: Call Migration
+  #   uses: Beakyn/onsmart-core-api/.github/workflows/call-migration.yml@master
+  #   with:
+  #     node-version: 16.13
+  #     node-cache: yarn
+  #     app-version: ${{ needs.get-package-version.outputs.version }}
+  #     node-env: production
+  #   secrets:
+  #     elasticsearch-cluster: ${{ secrets.ELASTICSEARCH_CLUSTER_PRODUCTION }}
+  #     elasticsearch-api-key: ${{ secrets.ELASTICSEARCH_API_KEY_PRODUCTION }}
+
+  # deploy-production:
+  #   name: Deploy production
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout to repository
+  #       uses: actions/checkout@v2
+  #       with:
+  #         fetch-depth: 0
+      
+  #     - name: Create Release
+  #       id: create_release
+  #       uses: actions/create-release@v1
+  #       with:
+  #         tag_name: ${{ fromJson(steps.milestone-data.outputs.data).title }}
+  #         release_name: ${{ fromJson(steps.milestone-data.outputs.data).title }}
+  #         body: ${{steps.format.outputs.release-notes}}
+  #         draft: false
+  #         prerelease: false
+        
+
+  # get-package-version:
+  #   name: Get package version
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     version: ${{ steps.package-version.outputs.version }}
+  #   steps:
+  #     - name: Checkout to repository
+  #       uses: actions/checkout@v2
+
+  #     - name: Get package version
+  #       id: package-version
+  #       run: |
+  #         PACKAGE_VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g')
+
+  #         echo ::set-output name=version::$PACKAGE_VERSION
+
+
+
+  # production:
+  #   needs: call-migration
+  #   name: Deploy (Production)
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     GITHUB_SHA: ${{ github.sha }}
+  #     GITHUB_TOKEN: ${{ github.token }}
+  #   steps:
+  #     # Checkout to repository
+  #     - name: Checkout to repository
+  #       uses: actions/checkout@v2
+  #       with:
+  #         fetch-depth: 0
+
+  #     # Get milestone informations
+  #     - name: Get milestone data
+  #       uses: Beakyn/gha-get-milestone-data@v1.0.1
+  #       id: milestone-data
+  #       with:
+  #         repository: ${{ github.repository }}
+  #         milestone: ${{ github.event.inputs.milestone }}
+
+  #     # Create release notes text
+  #     - name: Format release notes
+  #       uses: Beakyn/gha-format-release-notes@v1.0.1
+  #       id: format
+  #       with:
+  #         repository: ${{ github.repository }}
+  #         milestone: ${{ github.event.inputs.milestone }}
+
+  #     # Create release with milestone title
+  #     - name: Create Release
+  #       id: create_release
+  #       uses: actions/create-release@v1
+  #       with:
+  #         tag_name: ${{ fromJson(steps.milestone-data.outputs.data).title }}
+  #         release_name: ${{ fromJson(steps.milestone-data.outputs.data).title }}
+  #         body: ${{steps.format.outputs.release-notes}}
+  #         draft: false
+  #         prerelease: false
+
+  #     # Replace prefix ref
+  #     - name: Replace prefix ref
+  #       id: get_tag
+  #       run: echo ::set-output name=TAG::$(echo ${{ fromJson(steps.milestone-data.outputs.data).title }} | sed 's,'refs/heads/',,' | sed 's,'refs/tags/',,')
+
+  #     # Print tag
+  #     - name: Print tag
+  #       run: echo ${{ steps.get_tag.outputs.TAG }}
+
+  #     # Create sentry release
+  #     - name: Create sentry release
+  #       uses: getsentry/action-release@v1
+  #       env:
+  #         SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+  #         SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+  #         SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+  #       with:
+  #         environment: prod
+  #         set_commits: skip
+  #         # The refs/tags/ prefix is automatically stripped when version is github.ref.
+  #         version: ${{steps.get_tag.outputs.TAG}}
+
+  #     # SSM Pre Start && Start
+  #     - name: AWS SSM Send-Command Pre-Start && Start
+  #       uses: Beakyn/aws-ssm-send-command@ac81923d84d19b295c58bda87948a0f39f529eaa
+  #       id: ssm
+  #       with:
+  #         aws-region: ${{secrets.AWS_REGION}}
+  #         aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
+  #         aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+  #         instance-id: ${{secrets.INSTANCE_ID_PRODUCTION}}
+  #         working-directory: ${{secrets.WORKDIR_PRODUCTION}}
+  #         command: REF=${{steps.get_tag.outputs.TAG}} sh scripts/pre-start.sh && COMPOSE_PATH=${{secrets.COMPOSE_PATH_PRODUCTION}} SSM_PATH=${{secrets.SSM_PATH_PRODUCTION}} SENTRY_RELEASE_VERSION=${{steps.get_tag.outputs.TAG}} CLOUD_WATCH_LOG_GROUP=${{secrets.CLOUD_WATCH_LOG_GROUP_PRODUCTION}} CLOUD_WATCH_REDIS_LOG_GROUP=${{secrets.CLOUD_WATCH_REDIS_LOG_GROUP_PRODUCTION}} CLOUD_WATCH_LOG_STREAM=${{steps.get_tag.outputs.TAG}} sh scripts/start.sh
+
+  #     # Catch SSM Pre Start && Start outputs
+  #     - name: Get the outputs
+  #       run: echo "The Command id is ${{ steps.ssm.outputs.command-id }}"
+
+  #     # Push code to AWS Code Commit
+  #     - name: Sync AWS Code commit
+  #       run: |
+  #         repository='${{ secrets.AWS_CODE_COMMIT_URL_OUTFRONT }}'
+  #         # URI Encode username and password
+  #         username=$(perl -MURI::Escape -e 'print uri_escape($ARGV[0]);' '${{ secrets.AWS_CODE_COMMIT_USER_OUTFRONT }}')
+  #         password=$(perl -MURI::Escape -e 'print uri_escape($ARGV[0]);' '${{ secrets.AWS_CODE_COMMIT_PASSWORD_OUTFRONT }}')
+  #         # Replace // with //$username:$password@ to form URL with credentials
+  #         urlWithCredentials=$(echo ${repository} | sed -E "s/\/\//\/\/$username:$password@/g")
+  #         git push ${urlWithCredentials} -f --tags ${GITHUB_SHA}:refs/heads/master
+
+  #     # Upload Apollo Schema
+  #     - name: Upload Apollo Schema
+  #       uses: danielsinclair/rover-setup@v1
+  #       with:
+  #         args: graph publish ${{ secrets.APOLLO_GRAPH_ID }}@production --schema src/schema.gql
+  #       env:
+  #         APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
+
+  #     - name: Update GraphCDN Schema
+  #       run: npx graphcdn push --env production
+  #       env:
+  #         GRAPHCDN_TOKEN: ${{ secrets.GRAPHCDN_TOKEN }}
+
+  #     # Notify Slack
+  #     - name: Notify slack
+  #       uses: 8398a7/action-slack@v3
+  #       with:
+  #         status: custom
+  #         job_name: Deploy (Production)
+  #         fields: repo,commit,author,job,took,eventName
+  #         custom_payload: |
+  #           {
+  #             username: 'Production Deploy',
+  #             text: '${{ job.status }}' === 'success' ? ':white_check_mark: Succeeded GitHub Actions\n' : '${{ job.status }}' === 'failure' ? ':no_entry: Failed GitHub Actions\n' : ':warning: Canceled GitHub Actions\n',
+  #             attachments: [{
+  #               color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
+  #               fields: [{
+  #                 title: 'repo',
+  #                 value: `${process.env.AS_REPO}`,
+  #                 short: true
+  #               }, {
+  #                 title: 'commit',
+  #                 value: `${process.env.AS_COMMIT}`,
+  #                 short: true
+  #               }, {
+  #                 title: 'author',
+  #                 value: `${process.env.AS_AUTHOR}`,
+  #                 short: true
+  #               }, {
+  #                 title: 'job',
+  #                 value: `${process.env.AS_JOB}`,
+  #                 short: true
+  #               }, {
+  #                 title: 'took',
+  #                 value: `${process.env.AS_TOOK}`,
+  #                 short: true
+  #               }, {
+  #                 title: 'eventName',
+  #                 value: `${process.env.AS_EVENT_NAME}`,
+  #                 short: true
+  #               }, {
+  #                 title: 'playgroundUrl',
+  #                 value: '${{secrets.PLAYGROUND_URL_PRODUCTION}}',
+  #                 short: true
+  #               }]
+  #             }]
+  #           }
+  #       env:
+  #         GITHUB_TOKEN: ${{ github.token }}
+  #         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_BEAKYN }}
+  #         MATRIX_CONTEXT: ${{ toJson(matrix) }}
+  #       if: always() # Pick up events even if the job fails or is canceled.
+  #     # Close milestone by Event.Input.MilestoneID
+  #     - name: Close Milestone
+  #       uses: Beakyn/gha-close-milestone@v1.1.1
+  #       with:
+  #         repository: ${{ github.repository }}
+  #         milestone-number: ${{ github.event.inputs.milestone }}
