@@ -31,12 +31,14 @@ jobs:
       - name: Read package.json
         id: read-package-json
         run: |
-          packageJson=$(cat package.json)
+          packageJson=$(cat package.json | xargs)
           echo "::set-output name=package-json::$packageJson"
 
       - name: Get version
         id: get-version
         run: |
+          echo ${{ steps.read-package-json.outputs.package-json }}
+          
           version=${{ fromJson(steps.read-package-json.outputs.package-json).version }}
           echo "::set-output name=version::$version"
       
