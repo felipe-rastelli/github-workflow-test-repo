@@ -55,6 +55,8 @@ jobs:
         with:
           repository: ${{ github.repository }}
           milestone: ${{ steps.get-milestone.outputs.milestone-number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: DEBUG
         run: | 
