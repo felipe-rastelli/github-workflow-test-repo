@@ -32,15 +32,16 @@ jobs:
         id: read-package-json
         run: |
           packageJson=$(cat package.json | xargs)
+          echo "::echo::on"
           echo "::set-output name=package-json::$packageJson"
 
-      - name: Get version
-        id: get-version
-        run: |
-          echo ${{ steps.read-package-json.outputs.package-json }}
-          
-          version=${{ fromJson(steps.read-package-json.outputs.package-json).version }}
-          echo "::set-output name=version::$version"
+      # - name: Get version
+      #   id: get-version
+      #   run: |
+      #     echo ${{ steps.read-package-json.outputs.package-json }}
+
+      #     version=${{ fromJson(steps.read-package-json.outputs.package-json).version }}
+      #     echo "::set-output name=version::$version"
       
       - name: Extract release notes
         id: extract_release_notes
@@ -50,7 +51,7 @@ jobs:
 
       - name: DEBUG
         run: | 
-          echo "VERSION: ${{ steps.get-version.outputs.version }}"
+          # echo "VERSION: ${{ steps.get-version.outputs.version }}"
           echo "RELEASE NOTES: ${{ steps.extract_release_notes.outputs.release_notes }}"
 
           echo "${{ fromJson(github.event) }}"
