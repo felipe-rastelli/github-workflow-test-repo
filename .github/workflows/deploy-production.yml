@@ -37,11 +37,7 @@ jobs:
       - name: Get milestone
         run: |
           data="$(gh api repos/$GITHUB_REPOSITORY/milestones)"
-
           echo $data
-
-          # milestones="${{ fromJson(data) }}""
-          # echo "$milestones"
 
       # - name: Extract release notes
       #   id: extract_release_notes
