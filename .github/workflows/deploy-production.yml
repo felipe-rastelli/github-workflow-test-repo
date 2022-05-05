@@ -54,7 +54,7 @@ jobs:
           # echo "VERSION: ${{ steps.get-version.outputs.version }}"
           # echo "RELEASE NOTES: ${{ steps.extract_release_notes.outputs.release_notes }}"
 
-          echo "${{ fromJson(github) }}"
+          echo "${{ toJSON(github) }}"
 
       # - name: Get release notes
       #   id: get-release-notes
