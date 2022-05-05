@@ -28,12 +28,17 @@ jobs:
       - name: Checkout to repository
         uses: actions/checkout@v3
 
+      - name: Read package.json
+        id: read-package-json
+        run: |
+          packageJson=$(cat package.json)
+          echo "::set-output name=package-json::$packageJson"
+
       - name: Get version
         id: get-version
         run: |
-          packageJson=$(cat package.json)
-          version=${{ fromJson(echo "$packageJson").version }}
-          echo "::set-output:: name=version::$version"
+          version=${{ fromJson(steps.read-package.json.outputs.package-json).version }}
+          echo "::set-output name=version::$version"
       
       - name: Extract release notes
         id: extract_release_notes
