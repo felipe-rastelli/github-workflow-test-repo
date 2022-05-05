@@ -40,6 +40,8 @@ jobs:
           data="$(gh api repos/$GITHUB_REPOSITORY/milestones)"
           milestoneNumber=$(data | jq '.[] | select(.title == ${{ steps.get-version.outputs.version }}) | .number')
 
+          echo $data
+
           echo "::echo::on"
           echo "::set-output name=milestone-number::$milestoneNumber"
         env:
