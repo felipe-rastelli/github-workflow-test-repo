@@ -39,15 +39,12 @@ jobs:
         run: |
           data="$(gh api repos/$GITHUB_REPOSITORY/milestones)"
 
-          echo "DATA: \n$data"
-
           milestoneTitle="v${{ steps.get-version.outputs.version }}"
-          milestone=$(echo $data | jq -r -c --arg title $milestoneTitle '.[] | select(.title == $title) | { title: .title, number: .number }')
-
-          echo $milestoneTitle
+          milestoneNumber=$(echo $data | jq -r -c --arg title $milestoneTitle '.[] | select(.title == $title) | .number')
 
           echo "::echo::on"
-          echo "::set-output name=milestone-number::$milestone"
+          echo "::set-output name=milestone-title::$milestoneTitle"
+          echo "::set-output name=milestone-number::$milestoneNumber"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -57,7 +54,7 @@ jobs:
         uses: Beakyn/gha-format-release-notes@v1
         with:
           repository: ${{ github.repository }}
-          milestone: ${{ steps.get-milestone.outputs.milestone.number }}
+          milestone: ${{ steps.get-milestone.outputs.milestone-number }}
 
       - name: DEBUG
         run: | 
