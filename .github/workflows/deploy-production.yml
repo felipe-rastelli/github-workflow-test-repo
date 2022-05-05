@@ -42,7 +42,7 @@ jobs:
           echo "DATA: \n$data"
 
           milestoneTitle="v${{ steps.get-version.outputs.version }}"
-          milestone=$($data | jq -r -c --arg title $milestoneTitle '.[] | select(.title == $title) | { title: .title, number: .number }')
+          milestone=$(echo $data | jq -r -c --arg title $milestoneTitle '.[] | select(.title == $title) | { title: .title, number: .number }')
 
           echo $milestoneTitle
 
