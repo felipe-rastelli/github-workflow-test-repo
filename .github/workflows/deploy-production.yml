@@ -38,7 +38,7 @@ jobs:
         id: get-milestone-number
         run: |
           data="$(gh api repos/$GITHUB_REPOSITORY/milestones)"
-          milestoneNumber=$(data | jq '.[] | select(.title == ${{ steps.get-version.outputs.version }}) | .number')
+          milestoneNumber=$($data | jq '.[] | select(.title == ${{ steps.get-version.outputs.version }}) | .number')
 
           echo $data
 
