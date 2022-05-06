@@ -98,6 +98,8 @@ jobs:
           body: ${{ needs.get-deploy-data.outputs.release-notes }}
           draft: false
           prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
   deploy-production:
     name: Deploy production
