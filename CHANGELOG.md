@@ -2,6 +2,16 @@
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## v0.2.1 (2022-05-06)
+
+### Feature 🎉
+
+- Test issue 1 #15
+
+### Bug Fixes 🐛
+
+- Test issue 2 #16
+
 ## v0.2.0 (2022-05-06)
 
 ### Feature 🎉
