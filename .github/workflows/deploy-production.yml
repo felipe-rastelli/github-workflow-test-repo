@@ -1,6 +1,7 @@
 name: Deploy Production
 
 on:
+  workflow_dispatch:  
   push:
     branches:
       - "main"
@@ -10,18 +11,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # check-branch:
-  #   # Prevent to manually deploy other then 'master' branch to production environment
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Check Production branch ref
-  #       if: ${{ github.ref != 'refs/heads/master' }}
-  #       run: |
-  #         echo "Cannot deploy to production server from a branch different of 'master'"
-  #         exit 1
+  check-branch:
+    # Prevent to manually deploy other then 'master' branch to production environment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Production branch ref
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main' }}
+        run: |
+          echo "Cannot deploy to production server from a branch different of 'master'"
+          exit 1
 
   get-deploy-data:
     name: Get deploy data
+    needs: check-branch
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.get-version.outputs.version }}
@@ -66,6 +68,7 @@ jobs:
 
   database-migration:
     name: Database migration
+    needs: get-deploy-data
     uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/database-migration.yml@main
     with:
       command2: Test command 2
@@ -73,10 +76,32 @@ jobs:
         TEST_ENV_1="This is a test command var 1"
         TEST_ENV_2="This is a test command var 2" npm run test1 &&
         TEST_ENV_3="This is a test command var 3" npm run test2
+  
+  create-releases:
+    name: Create releases
+    needs: ['get-deploy-data', 'database-migration']
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout to repository
+        if: ${{ github.event_name == 'push' }}
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Create GibHub release
+        if: ${{ github.event_name == 'push' }}
+        id: create-github-release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ needs.get-deploy-data.outputs.version-tag }}
+          release_name: ${{ needs.get-deploy-data.outputs.version-tag }}
+          body: ${{ needs.get-deploy-data.outputs.release-notes }}
+          draft: false
+          prerelease: false
 
   deploy-production:
     name: Deploy production
-    needs: ['get-deploy-data', 'database-migration']
+    needs: ['get-deploy-data', 'create-releases']
     runs-on: ubuntu-latest
     steps:
       - name: Checkout to repository
@@ -108,27 +133,13 @@ jobs:
           MATRIX_CONTEXT: ${{ toJson(matrix) }}
         if: always() # Pick up events even if the job fails or is canceled.
 
-  create-releases:
-    name: Create releases
-    needs: ['get-deploy-data', 'deploy-production']
-    runs-on: ubuntu-latest
-    steps:
-      - name: Create GibHub release
-        run: |
-          echo "tag_name: ${{ needs.get-deploy-data.outputs.version-tag }}"
-          echo "body:\n ${{ needs.get-deploy-data.outputs.release-notes }}"
-
   close-milestone:
     name: Close milestone
     needs: ['get-deploy-data', 'deploy-production']
     runs-on: ubuntu-latest
     steps:
       - name: Close milestone
-        run: |
-          echo "MILESTONE NUMBER: ${{ needs.get-deploy-data.outputs.milestone-number }}"
-
-      # - name: Close milestone
-      #   uses: Beakyn/gha-close-milestone@v1.1.1
-      #   with:
-      #     repository: ${{ github.repository }}
-      #     milestone-number: ${{ jobs.get-deploy-data.outputs.milestone-number }}
+        uses: Beakyn/gha-close-milestone@v1.1.1
+        with:
+          repository: ${{ github.repository }}
+          milestone-number: ${{ jobs.get-deploy-data.outputs.milestone-number }}
