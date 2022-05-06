@@ -2,6 +2,8 @@
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## v0.2.0 (2022-05-06)
+
 ## v0.2.1 (2022-05-06)
 
 ### Feature 🎉
