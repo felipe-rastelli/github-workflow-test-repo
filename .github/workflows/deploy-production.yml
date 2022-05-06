@@ -85,7 +85,7 @@ jobs:
 
       - name: Test read deploy variables
         run: |
-          echo "VERSION TAG:\n ${{ jobs.get-deploy-data.outputs.version-tag }}"
+          echo "VERSION TAG:\n ${{ needs.get-deploy-data.outputs.version-tag }}"
           echo "SHA: ${{ github.sha }}"
           echo "TOKEN: ${{ github.token }}"
 
@@ -96,8 +96,8 @@ jobs:
     steps:
       - name: Create GibHub release
         run: |
-          echo "tag_name: ${{ jobs.get-deploy-data.outputs.version-tag }}"
-          echo "body:\n ${{ jobs.get-deploy-data.outputs.release-notes }}"
+          echo "tag_name: ${{ needs.get-deploy-data.outputs.version-tag }}"
+          echo "body:\n ${{ needs.get-deploy-data.outputs.release-notes }}"
 
   update-graphql-schemas:
     name: Update GraphQL schemas
@@ -137,7 +137,7 @@ jobs:
     steps:
       - name: Close milestone
         run: |
-          echo "MILESTONE NUMBER: ${{ jobs.get-deploy-data.outputs.milestone-number }}"
+          echo "MILESTONE NUMBER: ${{ needs.get-deploy-data.outputs.milestone-number }}"
 
       # - name: Close milestone
       #   uses: Beakyn/gha-close-milestone@v1.1.1
