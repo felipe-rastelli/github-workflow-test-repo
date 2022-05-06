@@ -142,4 +142,4 @@ jobs:
         uses: Beakyn/gha-close-milestone@v1.1.1
         with:
           repository: ${{ github.repository }}
-          milestone-number: ${{ jobs.get-deploy-data.outputs.milestone-number }}
+          milestone-number: ${{ needs.get-deploy-data.outputs.milestone-number }}
