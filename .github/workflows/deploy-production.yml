@@ -122,13 +122,13 @@ jobs:
           MATRIX_CONTEXT: ${{ toJson(matrix) }}
         run: |
           echo "JOB STATUS: ${{ job.status }}"
-          echo "JOB REPO: ${process.env.AS_REPO}"
-          echo "JOB COMMIT: ${process.env.AS_COMMIT}"
-          echo "JOB AUTHOR: ${process.env.AS_AUTHOR}"
-          echo "JOB: ${process.env.AS_JOB}"
-          echo "JOB TOOK: ${process.env.AS_TOOK}"
-          echo "JOB EVENT_NAME: ${process.env.AS_EVENT_NAME}"
           echo "MATRIX: $MATRIX_CONTEXT"
+          # echo "JOB REPO: ${process.env.AS_REPO}"
+          # echo "JOB COMMIT: ${process.env.AS_COMMIT}"
+          # echo "JOB AUTHOR: ${process.env.AS_AUTHOR}"
+          # echo "JOB: ${process.env.AS_JOB}"
+          # echo "JOB TOOK: ${process.env.AS_TOOK}"
+          # echo "JOB EVENT_NAME: ${process.env.AS_EVENT_NAME}"
 
   close-milestone:
     name: Close milestone
