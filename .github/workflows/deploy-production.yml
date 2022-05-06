@@ -140,9 +140,6 @@ jobs:
     needs: ['get-deploy-data', 'deploy-production']
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout to repository
-        uses: actions/checkout@v3
-
       - name: Close milestone
         uses: Beakyn/gha-close-milestone@v1.1.1
         with:
