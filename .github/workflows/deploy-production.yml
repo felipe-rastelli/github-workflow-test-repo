@@ -66,12 +66,13 @@ jobs:
 
   database-migration:
     name: Database migration
-    needs: get-deploy-data
-    runs-on: ubuntu-latest
-    steps:
-      - name: Migrate database data
-        run: |
-          echo "Migrating database…"
+    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/database-migration.yml@main
+    with:
+      command2: Test command 2
+      command1: |
+        TEST_ENV_1="This is a test command var 1"
+        TEST_ENV_2="This is a test command var 2" npm run test1 &&
+        TEST_ENV_3="This is a test command var 3" npm run test2
 
   deploy-production:
     name: Deploy production
