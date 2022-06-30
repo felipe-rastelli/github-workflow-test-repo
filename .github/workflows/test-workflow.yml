@@ -15,8 +15,8 @@ jobs:
     steps:
       - name: Step 1
         run: echo "Workflow 1 - Step 1"
-      # - name: Step 2
-      #   run: exit 1
+      - name: Step 2
+        run: exit 1
 
   workflow-2:
     name: Workflow 2
