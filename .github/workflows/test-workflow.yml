@@ -11,12 +11,12 @@ jobs:
   workflow-1:
     name: Workflow 1
     runs-on: ubuntu-latest
-    if: ${{ github.actor != 'felipe-rastelli' }}
+    if: ${{ github.actor == 'felipe-rastelli' }}
     steps:
       - name: Step 1
         run: echo "Workflow 1 - Step 1"
-      - name: Step 2
-        run: exit 1
+      # - name: Step 2
+      #   run: exit 1
 
   workflow-2:
     name: Workflow 2
