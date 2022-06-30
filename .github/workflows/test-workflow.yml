@@ -40,7 +40,7 @@ jobs:
     name: Workflow 4
     runs-on: ubuntu-latest
     needs: workflow-1
-    if: ${{ always() && needs.workflow-1.result == 'success' || needs.workflow-1.result == 'skipped' }}
+    if: ${{ always() && (needs.workflow-1.result == 'success' || needs.workflow-1.result == 'skipped') }}
     steps:
       - name: Step 1
         run: echo "Workflow 4 - Step 1"
