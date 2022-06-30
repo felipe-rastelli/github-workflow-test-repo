@@ -11,7 +11,7 @@ jobs:
   workflow-1:
     name: Workflow 1
     runs-on: ubuntu-latest
-    if: ${{ github.actor == 'felipe-rastelli' }}
+    if: ${{ github.actor != 'felipe-rastelli' }}
     steps:
       - name: Step 1
         run: echo "Workflow 1 - Step 1"
@@ -26,3 +26,21 @@ jobs:
     steps:
       - name: Step 1
         run: echo "Workflow 2 - Step 1"
+          
+  workflow-3:
+    name: Workflow 3
+    runs-on: ubuntu-latest
+    needs: workflow-1
+    if: ${{ always() }}
+    steps:
+      - name: Step 1
+        run: echo "${{ needs.workflow-1.result }}"
+
+  workflow-4:
+    name: Workflow 4
+    runs-on: ubuntu-latest
+    needs: workflow-1
+    if: ${{ always() && needs.workflow-1.result == 'success' || needs.workflow-1.result == 'skipped' }}
+    steps:
+      - name: Step 1
+        run: echo "Workflow 4 - Step 1"
