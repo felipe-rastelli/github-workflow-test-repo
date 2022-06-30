@@ -1,0 +1,25 @@
+name: Database migration
+
+on:
+  workflow_call:
+    inputs:
+      command1:
+        description: "Multiline test command"
+        required: true
+        type: string
+      command2:
+        description: "Single line test command"
+        required: true
+        type: string
+
+jobs:
+  build:
+    name: Data migration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Migrate database data
+        run: |
+          echo "COMMAND 1\\n"
+          echo ${{ inputs.command1 }}
+          echo "COMMAND 2\\n"
+          echo ${{ inputs.command2 }}

@@ -1,0 +1,149 @@
+name: Deploy Production
+
+on:
+  workflow_dispatch:  
+  push:
+    branches:
+      - "main"
+
+concurrency:
+  group: cd-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-branch:
+    # Prevent to manually deploy other then 'master' branch to production environment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Production branch ref
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main' }}
+        run: |
+          echo "Cannot deploy to production server from a branch different of 'master'"
+          exit 1
+
+  get-deploy-data:
+    name: Get deploy data
+    needs: check-branch
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+      version-tag: ${{ steps.get-version.outputs.version-tag }}
+      milestone-number: ${{ steps.get-milestone.outputs.milestone-number }}
+      release-notes: ${{ steps.get-release-notes.outputs.release-notes }}
+    steps:
+      - name: Checkout to repository
+        uses: actions/checkout@v3
+
+      - name: Get version
+        id: get-version
+        run: |
+          version=$(cat package.json | jq -r ".version")
+          versionTag="v$version"
+          
+          echo "::set-output name=version::$version"
+          echo "::set-output name=version-tag::$versionTag"
+
+      - name: Get milestone
+        id: get-milestone
+        run: |
+          data="$(gh api repos/$GITHUB_REPOSITORY/milestones)"
+
+          milestoneTitle="${{ steps.get-version.outputs.version-tag }}"
+          milestoneNumber=$(echo $data | jq -r -c --arg title $milestoneTitle '.[] | select(.title == $title) | .number')
+
+          echo "::echo::on"
+          echo "::set-output name=milestone-number::$milestoneNumber"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
+      - name: Get release notes
+        id: get-release-notes
+        uses: Beakyn/gha-format-release-notes@v1
+        with:
+          repository: ${{ github.repository }}
+          milestone: ${{ steps.get-milestone.outputs.milestone-number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  database-migration:
+    name: Database migration
+    needs: get-deploy-data
+    uses: felipe-rastelli/github-workflow-test-repo/.github/workflows/database-migration.yml@main
+    with:
+      command2: Test command 2
+      command1: |
+        TEST_ENV_1="This is a test command var 1"
+        TEST_ENV_2="This is a test command var 2" npm run test1 &&
+        TEST_ENV_3="This is a test command var 3" npm run test2
+  
+  create-releases:
+    name: Create releases
+    needs: ['get-deploy-data', 'database-migration']
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout to repository
+        if: ${{ github.event_name == 'push' }}
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Create GibHub release
+        if: ${{ github.event_name == 'push' }}
+        id: create-github-release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ needs.get-deploy-data.outputs.version-tag }}
+          release_name: ${{ needs.get-deploy-data.outputs.version-tag }}
+          body: ${{ needs.get-deploy-data.outputs.release-notes }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+  deploy-production:
+    name: Deploy production
+    needs: ['get-deploy-data', 'create-releases']
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout to repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Test read deploy variables
+        run: |
+          echo "VERSION TAG:\n ${{ needs.get-deploy-data.outputs.version-tag }}"
+          echo "SHA: ${{ github.sha }}"
+          echo "TOKEN: ${{ github.token }}"
+      
+      - name: Updating schemas
+        run: |
+          echo "Updating schemas…"
+      
+      - name: Notify slack
+        run: |
+          echo "JOB STATUS: ${{ job.status }}"
+          echo "MATRIX: $MATRIX_CONTEXT"
+          # echo "JOB REPO: ${process.env.AS_REPO}"
+          # echo "JOB COMMIT: ${process.env.AS_COMMIT}"
+          # echo "JOB AUTHOR: ${process.env.AS_AUTHOR}"
+          # echo "JOB: ${process.env.AS_JOB}"
+          # echo "JOB TOOK: ${process.env.AS_TOOK}"
+          # echo "JOB EVENT_NAME: ${process.env.AS_EVENT_NAME}"
+        env:
+          MATRIX_CONTEXT: ${{ toJson(matrix) }}
+        if: always() # Pick up events even if the job fails or is canceled.
+
+  close-milestone:
+    name: Close milestone
+    needs: ['get-deploy-data', 'deploy-production']
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close milestone
+        uses: Beakyn/gha-close-milestone@v1.1.1
+        with:
+          repository: ${{ github.repository }}
+          milestone-number: ${{ needs.get-deploy-data.outputs.milestone-number }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
